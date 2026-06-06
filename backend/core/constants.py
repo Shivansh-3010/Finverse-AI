@@ -1,0 +1,9 @@
+API_TITLE = "FinVerse AI"
+
+API_VERSION = "1.0.0"
+
+HEALTHY_STATUS = "healthy"
+
+ERROR_STATUS = "error"
+
+DEFAULT_ERROR_CODE = "ERR_001"

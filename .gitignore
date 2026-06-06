@@ -1,24 +1,42 @@
 # Python
 __pycache__/
-*.pyc
-.venv/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+backend/venv/
 venv/
 
-# Environment
+# Environment Files
 .env
+.env.*
+!.env.example
 
-# Node
-node_modules/
-.next/
-
-# Logs
-logs/
-*.log
+# IDE
+.vscode/
+.idea/
 
 # OS
 .DS_Store
 Thumbs.db
 
-# IDE
-.vscode/
-.idea/
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Database
+*.db
+*.sqlite3
+
+# Cache
+.cache/
