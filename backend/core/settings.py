@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     ALPHA_VANTAGE_KEY: str = ""
     TWELVE_DATA_KEY: str = ""
     OPENAI_API_KEY: str = ""
+    SECRET_KEY: str = ""
 
     CHROMADB_HOST: str = ""
 
