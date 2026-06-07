@@ -1,4 +1,9 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
@@ -10,15 +15,16 @@ class Settings(BaseSettings):
     REDIS_URL: str = ""
 
     NEWS_API_KEY: str = ""
-    ALPHA_VANTAGE_KEY: str = ""
-    TWELVE_DATA_KEY: str = ""
+    ALPHA_VANTAGE_API_KEY: str = ""
+    TWELVE_DATA_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
+
     SECRET_KEY: str = ""
 
     CHROMADB_HOST: str = ""
 
     model_config = SettingsConfigDict(
-        env_file=".env.development",
+        env_file=BASE_DIR / ".env.development",
         extra="ignore"
     )
 
