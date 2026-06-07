@@ -2,12 +2,13 @@ from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base
+from models.mixins.timestamp import TimestampMixin
+from models.mixins.uuid import UUIDMixin
 
 
-class User(Base):
+class User(UUIDMixin, TimestampMixin, Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(String, primary_key=True)
     full_name: Mapped[str] = mapped_column(String(255))
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String)
