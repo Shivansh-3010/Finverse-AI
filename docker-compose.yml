@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    container_name: finverse_postgres
+    environment:
+      POSTGRES_USER: finverse
+      POSTGRES_PASSWORD: finverse123
+      POSTGRES_DB: finverse_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: finverse_redis
+    ports:
+      - "6379:6379"
+
+  chromadb:
+    image: chromadb/chroma
+    container_name: finverse_chromadb
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
