@@ -14,6 +14,13 @@ from schemas.technical_indicator import (
 from services.technical_indicator_service import (
     TechnicalIndicatorService,
 )
+from schemas.candlestick_analysis import (
+    CandlestickAnalysisResponse,
+)
+
+from services.candlestick_analysis_service import (
+    CandlestickAnalysisService,
+)
 
 from schemas.base_response import BaseResponse
 
@@ -78,5 +85,15 @@ async def get_indicators(symbol: str):
 async def get_indicator_history(symbol: str):
 
     return TechnicalIndicatorService.get_history(
+        symbol
+    )
+    
+@router.get(
+    "/{symbol}/candlestick-analysis",
+    response_model=CandlestickAnalysisResponse
+)
+async def get_candlestick_analysis(symbol: str):
+
+    return CandlestickAnalysisService.analyze(
         symbol
     )
