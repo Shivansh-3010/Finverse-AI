@@ -28,6 +28,7 @@ from models.recommendation import Recommendation
 from models.agent_output import AgentOutput
 from models.research_report import ResearchReport
 from models.audit_log import AuditLog
+from models.technical_indicator import TechnicalIndicator
 
 target_metadata = Base.metadata
 
