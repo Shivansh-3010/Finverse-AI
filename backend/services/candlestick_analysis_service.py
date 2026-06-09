@@ -1,7 +1,9 @@
 from agents.candlestick_analysis_agent.agent import (
     CandlestickAnalysisAgent,
 )
-
+from services.candlestick_pattern_persistence_service import (
+    CandlestickPatternPersistenceService,
+)
 from database.session import SessionLocal
 from repositories.ohlcv_repository import OHLCVRepository
 
@@ -30,9 +32,20 @@ class CandlestickAnalysisService:
 
             agent = CandlestickAnalysisAgent()
 
-            return agent.analyze(
+            result = agent.analyze(
                 records
             )
+
+            if result["patterns"]:
+
+                CandlestickPatternPersistenceService.save_patterns(
+                    symbol=symbol,
+                    candlestick_score=
+                        result["candlestick_score"],
+                    patterns=result["patterns"],
+                )
+
+            return result
 
         finally:
             db.close()

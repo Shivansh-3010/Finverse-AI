@@ -11,6 +11,13 @@ from feature_store.technical.technical_features import (
 from services.indicator_persistence_service import (
     IndicatorPersistenceService,
 )
+from services.candlestick_analysis_service import (
+    CandlestickAnalysisService,
+)
+
+from technical.scoring.combined_score import (
+    calculate_combined_score,
+)
 
 
 class TechnicalAnalysisService:
@@ -50,7 +57,34 @@ class TechnicalAnalysisService:
 
                 agent = TechnicalAnalysisAgent()
 
-                return agent.analyze(data)
+                technical_result = agent.analyze(data)
+
+                candlestick_result = (
+                    CandlestickAnalysisService.analyze(
+                        symbol
+                    )
+                )
+
+                combined_score = calculate_combined_score(
+                    technical_score=
+                        technical_result["technical_score"],
+                    candlestick_score=
+                        candlestick_result["candlestick_score"],
+                )
+
+                technical_result["candlestick_score"] = (
+                    candlestick_result["candlestick_score"]
+                )
+
+                technical_result["combined_score"] = (
+                    combined_score
+                )
+
+                technical_result["candlestick_patterns"] = (
+                    candlestick_result["patterns"]
+                )
+
+                return technical_result
 
             finally:
                 db.close()

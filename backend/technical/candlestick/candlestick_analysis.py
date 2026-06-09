@@ -14,6 +14,9 @@ from .pattern_detector import (
 from .pattern_scoring import (
     calculate_pattern_score,
 )
+from .pattern_confidence import (
+    calculate_pattern_confidence,
+)
 
 from .pattern_types import PatternSignal
 
@@ -38,6 +41,10 @@ def analyze_candlestick(records):
             "pattern": "Doji",
             "signal": PatternSignal.NEUTRAL,
             "strength": 5,
+            "confidence": calculate_pattern_confidence(
+                "Doji",
+                5,
+            ),
         })
 
     if detect_hammer(
@@ -50,6 +57,10 @@ def analyze_candlestick(records):
             "pattern": "Hammer",
             "signal": PatternSignal.BULLISH,
             "strength": 8,
+            "confidence": calculate_pattern_confidence(
+                "Hammer",
+                8,
+            ),
         })
         
     if detect_shooting_star(
@@ -62,6 +73,10 @@ def analyze_candlestick(records):
             "pattern": "Shooting Star",
             "signal": PatternSignal.BEARISH,
             "strength": 8,
+            "confidence": calculate_pattern_confidence(
+                "Shooting Star",
+                8,
+            ),
         })
         
     if detect_spinning_top(
@@ -74,6 +89,10 @@ def analyze_candlestick(records):
             "pattern": "Spinning Top",
             "signal": PatternSignal.NEUTRAL,
             "strength": 5,
+            "confidence": calculate_pattern_confidence(
+                "Spinning Top",
+                5,
+            ),
         })
     
     if len(records) >= 2:
@@ -90,6 +109,10 @@ def analyze_candlestick(records):
                 "pattern": "Bullish Engulfing",
                 "signal": PatternSignal.BULLISH,
                 "strength": 10,
+                "confidence": calculate_pattern_confidence(
+                    "Bullish Engulfing",
+                    10,
+                ),
             })
 
         if detect_bearish_engulfing(
@@ -102,6 +125,10 @@ def analyze_candlestick(records):
                 "pattern": "Bearish Engulfing",
                 "signal": PatternSignal.BEARISH,
                 "strength": 10,
+                "confidence": calculate_pattern_confidence(
+                    "Bearish Engulfing",
+                    10,
+                ),
             })
             
     if len(records) >= 3:
@@ -122,6 +149,10 @@ def analyze_candlestick(records):
                 "pattern": "Morning Star",
                 "signal": PatternSignal.BULLISH,
                 "strength": 15,
+                "confidence": calculate_pattern_confidence(
+                    "Morning Star",
+                    15,
+                ),
             })
             
         if detect_evening_star(
@@ -136,6 +167,10 @@ def analyze_candlestick(records):
                 "pattern": "Evening Star",
                 "signal": PatternSignal.BEARISH,
                 "strength": 15,
+                "confidence": calculate_pattern_confidence(
+                    "Evening Star",
+                    15,
+                ),
             })
 
         if detect_three_white_soldiers(
@@ -150,6 +185,10 @@ def analyze_candlestick(records):
                 "pattern": "Three White Soldiers",
                 "signal": PatternSignal.BULLISH,
                 "strength": 15,
+                "confidence": calculate_pattern_confidence(
+                    "Three White Soldiers",
+                    15,
+                ),
             })
 
         if detect_three_black_crows(
@@ -164,6 +203,10 @@ def analyze_candlestick(records):
                 "pattern": "Three Black Crows",
                 "signal": PatternSignal.BEARISH,
                 "strength": 15,
+                "confidence": calculate_pattern_confidence(
+                    "Three Black Crows",
+                    15,
+                ),
             })
         
     score = calculate_pattern_score(patterns)

@@ -21,6 +21,21 @@ from schemas.candlestick_analysis import (
 from services.candlestick_analysis_service import (
     CandlestickAnalysisService,
 )
+from schemas.candlestick_pattern import (
+    CandlestickPatternHistoryResponse,
+)
+
+from services.candlestick_pattern_service import (
+    CandlestickPatternService,
+)
+
+from schemas.candlestick_explanation import (
+    CandlestickExplanation,
+)
+
+from services.candlestick_explainability_service import (
+    CandlestickExplainabilityService,
+)
 
 from schemas.base_response import BaseResponse
 
@@ -93,6 +108,41 @@ async def get_indicator_history(symbol: str):
     response_model=CandlestickAnalysisResponse
 )
 async def get_candlestick_analysis(symbol: str):
+
+    return CandlestickAnalysisService.analyze(
+        symbol
+    )
+    
+@router.get(
+    "/{symbol}/patterns/history",
+    response_model=CandlestickPatternHistoryResponse
+)
+async def get_pattern_history(symbol: str):
+
+    return CandlestickPatternService.get_history(
+        symbol
+    )
+    
+@router.get(
+    "/patterns/explain/{pattern}",
+    response_model=CandlestickExplanation
+)
+async def explain_pattern(
+    pattern: str
+):
+
+    return (
+        CandlestickExplainabilityService
+        .explain(pattern)
+    )
+    
+@router.get(
+    "/{symbol}/patterns",
+    response_model=CandlestickAnalysisResponse
+)
+async def get_current_patterns(
+    symbol: str
+):
 
     return CandlestickAnalysisService.analyze(
         symbol
