@@ -19,11 +19,22 @@ from technical.scoring.combined_score import (
     calculate_combined_score,
 )
 
+from utils.timeframe_validator import (
+    validate_timeframe,
+)
+
 
 class TechnicalAnalysisService:
 
         @staticmethod
-        def analyze(symbol: str):
+        def analyze(
+            symbol: str,
+            timeframe: str = "1d"
+        ):
+
+            validate_timeframe(
+                timeframe
+            )
 
             db = SessionLocal()
 
@@ -31,8 +42,9 @@ class TechnicalAnalysisService:
 
                 repository = OHLCVRepository(db)
 
-                records = repository.get_latest_by_symbol(
+                records = repository.get_latest_by_symbol_and_timeframe(
                     symbol=symbol,
+                    timeframe=timeframe,
                     limit=200
                 )
 
@@ -52,6 +64,7 @@ class TechnicalAnalysisService:
 
                 IndicatorPersistenceService.save_indicator(
                     symbol=symbol,
+                    timeframe=timeframe,
                     features=features
                 )
 
@@ -61,7 +74,8 @@ class TechnicalAnalysisService:
 
                 candlestick_result = (
                     CandlestickAnalysisService.analyze(
-                        symbol
+                        symbol=symbol,
+                        timeframe=timeframe
                     )
                 )
 

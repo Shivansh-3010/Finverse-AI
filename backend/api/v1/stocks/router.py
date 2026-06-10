@@ -54,8 +54,14 @@ async def get_stocks():
     "/{symbol}/technical",
     response_model=TechnicalAnalysisResponse
 )
-async def get_technical_analysis(symbol: str):
-    return TechnicalAnalysisService.analyze(symbol)
+async def get_technical_analysis(
+    symbol: str,
+    timeframe: str = "1d"
+):
+    return TechnicalAnalysisService.analyze(
+        symbol=symbol,
+        timeframe=timeframe
+    )
 
 @router.get(
     "/{symbol}/explanation",
@@ -87,40 +93,56 @@ async def get_copilot_analysis(symbol: str):
     "/{symbol}/indicators",
     response_model=TechnicalIndicatorResponse
 )
-async def get_indicators(symbol: str):
+async def get_indicators(
+    symbol: str,
+    timeframe: str = "1d"
+):
 
     return TechnicalIndicatorService.get_latest(
-        symbol
+        symbol=symbol,
+        timeframe=timeframe
     )
     
 @router.get(
     "/{symbol}/indicators/history",
     response_model=TechnicalIndicatorHistoryResponse
 )
-async def get_indicator_history(symbol: str):
+async def get_indicator_history(
+    symbol: str,
+    timeframe: str = "1d"
+):
 
     return TechnicalIndicatorService.get_history(
-        symbol
+        symbol=symbol,
+        timeframe=timeframe
     )
     
 @router.get(
     "/{symbol}/candlestick-analysis",
     response_model=CandlestickAnalysisResponse
 )
-async def get_candlestick_analysis(symbol: str):
+async def get_candlestick_analysis(
+    symbol: str,
+    timeframe: str = "1d"
+):
 
     return CandlestickAnalysisService.analyze(
-        symbol
+        symbol=symbol,
+        timeframe=timeframe
     )
     
 @router.get(
     "/{symbol}/patterns/history",
     response_model=CandlestickPatternHistoryResponse
 )
-async def get_pattern_history(symbol: str):
+async def get_pattern_history(
+    symbol: str,
+    timeframe: str = "1d"
+):
 
     return CandlestickPatternService.get_history(
-        symbol
+        symbol=symbol,
+        timeframe=timeframe
     )
     
 @router.get(
@@ -141,9 +163,11 @@ async def explain_pattern(
     response_model=CandlestickAnalysisResponse
 )
 async def get_current_patterns(
-    symbol: str
+    symbol: str,
+    timeframe: str = "1d"
 ):
 
     return CandlestickAnalysisService.analyze(
-        symbol
+        symbol=symbol,
+        timeframe=timeframe
     )

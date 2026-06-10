@@ -12,6 +12,7 @@ class IndicatorPersistenceService:
     @staticmethod
     def save_indicator(
         symbol: str,
+        timeframe: str,
         features: dict
     ):
 
@@ -23,6 +24,7 @@ class IndicatorPersistenceService:
 
             indicator = TechnicalIndicator(
                 symbol=symbol,
+                timeframe=timeframe,
                 timestamp=datetime.now(timezone.utc),
 
                 rsi=features["rsi"],

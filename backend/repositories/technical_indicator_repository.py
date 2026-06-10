@@ -23,6 +23,23 @@ class TechnicalIndicatorRepository:
             )
             .first()
         )
+        
+    def get_latest_by_timeframe(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(TechnicalIndicator)
+            .filter(
+                TechnicalIndicator.symbol == symbol,
+                TechnicalIndicator.timeframe == timeframe
+            )
+            .order_by(
+                desc(TechnicalIndicator.timestamp)
+            )
+            .first()
+        )
 
     def get_history(
         self,
@@ -32,6 +49,23 @@ class TechnicalIndicatorRepository:
             self.db.query(TechnicalIndicator)
             .filter(
                 TechnicalIndicator.symbol == symbol
+            )
+            .order_by(
+                TechnicalIndicator.timestamp
+            )
+            .all()
+        )
+        
+    def get_history_by_timeframe(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(TechnicalIndicator)
+            .filter(
+                TechnicalIndicator.symbol == symbol,
+                TechnicalIndicator.timeframe == timeframe
             )
             .order_by(
                 TechnicalIndicator.timestamp

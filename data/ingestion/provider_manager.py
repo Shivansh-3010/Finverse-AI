@@ -1,6 +1,14 @@
-from yahoo_ingestor import YahooIngestor
-from alpha_vantage_ingestor import AlphaVantageIngestor
-from twelve_data_ingestor import TwelveDataIngestor
+from data.ingestion.yahoo_ingestor import (
+    YahooIngestor,
+)
+
+from data.ingestion.alpha_vantage_ingestor import (
+    AlphaVantageIngestor,
+)
+
+from data.ingestion.twelve_data_ingestor import (
+    TwelveDataIngestor,
+)
 
 
 class ProviderManager:

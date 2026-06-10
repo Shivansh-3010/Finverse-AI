@@ -14,6 +14,7 @@ class CandlestickPatternPersistenceService:
     @staticmethod
     def save_patterns(
         symbol: str,
+        timeframe: str,
         candlestick_score: float,
         patterns: list,
     ):
@@ -32,6 +33,7 @@ class CandlestickPatternPersistenceService:
 
                 entity = CandlestickPattern(
                     symbol=symbol,
+                    timeframe=timeframe,
                     timestamp=datetime.now(
                         timezone.utc
                     ),
@@ -39,6 +41,7 @@ class CandlestickPatternPersistenceService:
                     pattern_name=pattern["pattern"],
                     signal=pattern["signal"].value,
                     strength=pattern["strength"],
+                    confidence=pattern["confidence"],
 
                     candlestick_score=
                         candlestick_score,

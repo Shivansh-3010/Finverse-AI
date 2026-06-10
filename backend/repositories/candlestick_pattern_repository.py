@@ -25,6 +25,23 @@ class CandlestickPatternRepository:
             )
             .first()
         )
+        
+    def get_latest_by_timeframe(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(CandlestickPattern)
+            .filter(
+                CandlestickPattern.symbol == symbol,
+                CandlestickPattern.timeframe == timeframe
+            )
+            .order_by(
+                desc(CandlestickPattern.timestamp)
+            )
+            .first()
+        )
 
     def get_history(
         self,
@@ -34,6 +51,23 @@ class CandlestickPatternRepository:
             self.db.query(CandlestickPattern)
             .filter(
                 CandlestickPattern.symbol == symbol
+            )
+            .order_by(
+                CandlestickPattern.timestamp
+            )
+            .all()
+        )
+        
+    def get_history_by_timeframe(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(CandlestickPattern)
+            .filter(
+                CandlestickPattern.symbol == symbol,
+                CandlestickPattern.timeframe == timeframe
             )
             .order_by(
                 CandlestickPattern.timestamp

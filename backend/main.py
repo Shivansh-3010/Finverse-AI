@@ -11,6 +11,10 @@ from exceptions.handlers import generic_exception_handler
 from middleware.request_logger import RequestLoggerMiddleware
 from middleware.security_headers import SecurityHeadersMiddleware
 from api.v1.stocks.market_data_router import router as market_data_router
+from scheduler.market_data_scheduler import (
+    start_scheduler,
+    stop_scheduler,
+)
 
 
 app = FastAPI(
@@ -67,3 +71,14 @@ app.include_router(
     prefix="/api/v1",
     tags=["Market Data"]
 )
+
+@app.on_event("startup")
+async def startup_event():
+
+    start_scheduler()
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+
+    stop_scheduler()

@@ -29,6 +29,10 @@ from models.agent_output import AgentOutput
 from models.research_report import ResearchReport
 from models.audit_log import AuditLog
 from models.technical_indicator import TechnicalIndicator
+from models.ohlcv_data import OHLCVData
+from models.candlestick_pattern import (
+    CandlestickPattern
+)
 
 target_metadata = Base.metadata
 

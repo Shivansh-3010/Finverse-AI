@@ -31,6 +31,23 @@ class OHLCVRepository:
             .limit(limit)
             .all()
         )
+        
+    def get_latest_by_symbol_and_timeframe(
+        self,
+        symbol: str,
+        timeframe: str,
+        limit: int = 200
+    ):
+        return (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe
+            )
+            .order_by(desc(OHLCVData.timestamp))
+            .limit(limit)
+            .all()
+        )
 
     def get_history_by_symbol(
         self,
@@ -42,3 +59,18 @@ class OHLCVRepository:
             .order_by(OHLCVData.timestamp)
             .all()
         )      
+        
+    def get_history_by_symbol_and_timeframe(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe
+            )
+            .order_by(OHLCVData.timestamp)
+            .all()
+        )

@@ -13,6 +13,11 @@ class TechnicalIndicator(Base):
         String(20),
         primary_key=True
     )
+    
+    timeframe: Mapped[str] = mapped_column(
+        String(10),
+        primary_key=True
+    )
 
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
