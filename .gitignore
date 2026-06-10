@@ -40,3 +40,6 @@ dist/
 
 # Cache
 .cache/
+
+# Database backups
+backend/finverse_backup.sql
