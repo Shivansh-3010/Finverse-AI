@@ -49,6 +49,9 @@ from .trend_adjustment import (
 from .volume_confirmation import (
     calculate_volume_factor,
 )
+from .pattern_reliability import (
+    get_pattern_reliability,
+)
 from .pattern_confidence import (
     calculate_pattern_confidence,
 )
@@ -660,12 +663,22 @@ def analyze_candlestick(records):
 
         pattern["strength"] = adjusted_strength
         
-        pattern["confidence"] = (
+        base_confidence = (
             calculate_pattern_confidence(
                 pattern["pattern"],
                 pattern["strength"],
             )
         )
+
+        reliability = (
+            get_pattern_reliability(
+                pattern["pattern"]
+            )
+        )
+
+        pattern["confidence"] = (
+            base_confidence + reliability
+        ) / 2
     
     patterns.sort(
         key=lambda pattern: (
