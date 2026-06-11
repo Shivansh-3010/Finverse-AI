@@ -37,6 +37,10 @@ from services.candlestick_explainability_service import (
     CandlestickExplainabilityService,
 )
 
+from services.multi_timeframe_pattern_service import (
+    MultiTimeframePatternService,
+)
+
 from schemas.base_response import BaseResponse
 
 router = APIRouter()
@@ -170,4 +174,17 @@ async def get_current_patterns(
     return CandlestickAnalysisService.analyze(
         symbol=symbol,
         timeframe=timeframe
+    )
+    
+@router.get(
+    "/{symbol}/multi-timeframe-patterns"
+)
+def get_multi_timeframe_patterns(
+    symbol: str,
+):
+
+    return (
+        MultiTimeframePatternService.analyze(
+            symbol
+        )
     )
