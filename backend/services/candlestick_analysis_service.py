@@ -31,7 +31,7 @@ class CandlestickAnalysisService:
             records = repository.get_latest_by_symbol_and_timeframe(
                 symbol=symbol,
                 timeframe=timeframe,
-                limit=3
+                limit=50
             )
 
             if not records:
