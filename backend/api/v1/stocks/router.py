@@ -40,6 +40,12 @@ from services.candlestick_explainability_service import (
 from services.multi_timeframe_pattern_service import (
     MultiTimeframePatternService,
 )
+from schemas.support_resistance import (
+    SupportResistanceResponse,
+)
+from services.support_resistance_service import (
+    SupportResistanceService,
+)
 
 from schemas.base_response import BaseResponse
 
@@ -187,4 +193,18 @@ def get_multi_timeframe_patterns(
         MultiTimeframePatternService.analyze(
             symbol
         )
+    )
+    
+@router.get(
+    "/{symbol}/support-resistance",
+    response_model=SupportResistanceResponse
+)
+async def get_support_resistance(
+    symbol: str,
+    timeframe: str = "1d"
+):
+
+    return SupportResistanceService.analyze(
+        symbol=symbol,
+        timeframe=timeframe
     )
