@@ -14,6 +14,15 @@ class MarketDataService:
 
     def save_market_data(self, df):
 
+        df = df.dropna(
+            subset=[
+                "open",
+                "high",
+                "low",
+                "close",
+            ]
+        )
+
         records = df.to_dict(
             orient="records"
         )
@@ -21,6 +30,8 @@ class MarketDataService:
         self.repository.bulk_insert(
             records
         )
+        
+    
         
     def get_cached_stock(self, symbol: str):
 

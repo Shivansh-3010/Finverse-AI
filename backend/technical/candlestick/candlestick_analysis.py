@@ -1,3 +1,4 @@
+import math
 from .pattern_detector import (
     detect_doji,
     detect_hammer,
@@ -10,6 +11,24 @@ from .pattern_detector import (
     detect_gravestone_doji,
     detect_long_legged_doji,
     detect_marubozu,
+    
+    detect_bullish_belt_hold,
+    detect_bearish_belt_hold,
+    detect_opening_marubozu,
+    detect_closing_marubozu,
+    detect_rickshaw_man,
+    detect_high_wave_candle,
+    detect_paper_umbrella,
+    detect_shaven_head,
+    detect_shaven_bottom,
+
+    detect_takuri_line,
+    detect_long_lower_shadow,
+    detect_long_upper_shadow,
+    detect_bullish_opening_marubozu,
+    detect_bearish_opening_marubozu,
+    detect_bullish_closing_marubozu,
+    detect_bearish_closing_marubozu,
 
     detect_bullish_engulfing,
     detect_bearish_engulfing,
@@ -75,8 +94,26 @@ def analyze_candlestick(records):
             records
         )
     )
-    
-    latest = records[0]
+
+    valid_records = []
+
+    for record in records:
+
+        if not (
+            math.isnan(float(record.open))
+            or math.isnan(float(record.high))
+            or math.isnan(float(record.low))
+            or math.isnan(float(record.close))
+        ):
+            valid_records.append(record)
+
+    if not valid_records:
+        return {
+            "candlestick_score": 0,
+            "patterns": []
+        }
+
+    latest = valid_records[0]
 
     open_price = float(latest.open)
     high_price = float(latest.high)
@@ -250,11 +287,204 @@ def analyze_candlestick(records):
             ),
         })
         
+    if detect_takuri_line(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Takuri Line",
+            "signal": PatternSignal.BULLISH,
+            "strength": 9,
+        })
+
+    if detect_long_lower_shadow(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Long Lower Shadow",
+            "signal": PatternSignal.BULLISH,
+            "strength": 6,
+        })
+
+    if detect_long_upper_shadow(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Long Upper Shadow",
+            "signal": PatternSignal.BEARISH,
+            "strength": 6,
+        })
+
+    if detect_rickshaw_man(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Rickshaw Man",
+            "signal": PatternSignal.NEUTRAL,
+            "strength": 5,
+        })
+        
+    if detect_high_wave_candle(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "High Wave Candle",
+            "signal": PatternSignal.NEUTRAL,
+            "strength": 5,
+        })
+
+    if detect_paper_umbrella(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Paper Umbrella",
+            "signal": PatternSignal.BULLISH,
+            "strength": 7,
+        })
+
+    if detect_bullish_belt_hold(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bullish Belt Hold",
+            "signal": PatternSignal.BULLISH,
+            "strength": 8,
+        })
+
+    if detect_bearish_belt_hold(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bearish Belt Hold",
+            "signal": PatternSignal.BEARISH,
+            "strength": 8,
+        })
+
+    if detect_shaven_head(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Shaven Head",
+            "signal": PatternSignal.BEARISH,
+            "strength": 6,
+        })
+        
+    if detect_shaven_bottom(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Shaven Bottom",
+            "signal": PatternSignal.BULLISH,
+            "strength": 6,
+        })
+
+    if detect_opening_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Opening Marubozu",
+            "signal": PatternSignal.NEUTRAL,
+            "strength": 7,
+        })
+
+    if detect_closing_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Closing Marubozu",
+            "signal": PatternSignal.NEUTRAL,
+            "strength": 7,
+        })
+
+    if detect_bullish_opening_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bullish Opening Marubozu",
+            "signal": PatternSignal.BULLISH,
+            "strength": 8,
+        })
+
+    if detect_bearish_opening_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bearish Opening Marubozu",
+            "signal": PatternSignal.BEARISH,
+            "strength": 8,
+        })
+
+    if detect_bullish_closing_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bullish Closing Marubozu",
+            "signal": PatternSignal.BULLISH,
+            "strength": 8,
+        })
+
+    if detect_bearish_closing_marubozu(
+        open_price,
+        high_price,
+        low_price,
+        close_price,
+    ):
+        patterns.append({
+            "pattern": "Bearish Closing Marubozu",
+            "signal": PatternSignal.BEARISH,
+            "strength": 8,
+        })
+        
+        
     """ Double Candle Patterns """
     
-    if len(records) >= 2:
+    if len(valid_records) >= 2:
 
-        previous = records[1]
+        previous = valid_records[1]
 
         if detect_bullish_engulfing(
             prev_open=float(previous.open),
@@ -458,11 +688,11 @@ def analyze_candlestick(records):
             
     """ Triple Candle Patterns """
             
-    if len(records) >= 3:
+    if len(valid_records) >= 3:
 
-        third = records[0]
-        second = records[1]
-        first = records[2]
+        third = valid_records[0]
+        second = valid_records[1]
+        first = valid_records[2]
 
         if detect_morning_star(
             first_open=float(first.open),

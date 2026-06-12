@@ -183,3 +183,261 @@ def detect_bearish_kicker(
         and curr_close < curr_open
     )
     
+def detect_bullish_meeting_lines(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close < prev_open
+        and curr_close > curr_open
+        and abs(
+            prev_close - curr_close
+        )
+        <= max(
+            abs(prev_close),
+            abs(curr_close),
+        ) * tolerance
+    )
+
+
+def detect_bearish_meeting_lines(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close > prev_open
+        and curr_close < curr_open
+        and abs(
+            prev_close - curr_close
+        )
+        <= max(
+            abs(prev_close),
+            abs(curr_close),
+        ) * tolerance
+    )
+
+
+def detect_bullish_separating_lines(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close < prev_open
+        and curr_close > curr_open
+        and abs(
+            prev_open - curr_open
+        )
+        <= max(
+            abs(prev_open),
+            abs(curr_open),
+        ) * tolerance
+    )
+
+
+def detect_bearish_separating_lines(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close > prev_open
+        and curr_close < curr_open
+        and abs(
+            prev_open - curr_open
+        )
+        <= max(
+            abs(prev_open),
+            abs(curr_open),
+        ) * tolerance
+    )
+
+
+def detect_bullish_counterattack(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close < prev_open
+        and curr_close > curr_open
+        and abs(
+            prev_close - curr_close
+        )
+        <= max(
+            abs(prev_close),
+            abs(curr_close),
+        ) * tolerance
+    )
+
+
+def detect_bearish_counterattack(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+    tolerance=0.002,
+):
+    return (
+        prev_close > prev_open
+        and curr_close < curr_open
+        and abs(
+            prev_close - curr_close
+        )
+        <= max(
+            abs(prev_close),
+            abs(curr_close),
+        ) * tolerance
+    )
+
+
+def detect_on_neck_pattern(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    return (
+        prev_close < prev_open
+        and curr_open < prev_close
+        and curr_close >= prev_close
+        and curr_close <= prev_close * 1.01
+    )
+
+
+def detect_in_neck_pattern(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    return (
+        prev_close < prev_open
+        and curr_open < prev_close
+        and curr_close > prev_close
+        and curr_close < (
+            prev_open + prev_close
+        ) / 2
+    )
+
+
+def detect_thrusting_pattern(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    midpoint = (
+        prev_open + prev_close
+    ) / 2
+
+    return (
+        prev_close < prev_open
+        and curr_open < prev_close
+        and curr_close > prev_close
+        and curr_close < midpoint
+    )
+
+
+def detect_homing_pigeon(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    return (
+        prev_close < prev_open
+        and curr_open > prev_close
+        and curr_close < prev_open
+        and abs(
+            curr_close - curr_open
+        )
+        < abs(
+            prev_close - prev_open
+        )
+    )
+    
+def detect_kicking_bullish(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    return (
+        prev_close < prev_open
+        and curr_close > curr_open
+        and curr_open > prev_open
+    )
+    
+def detect_kicking_bearish(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    return (
+        prev_close > prev_open
+        and curr_close < curr_open
+        and curr_open < prev_open
+    )
+    
+def detect_kicking_by_length_bullish(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    previous_body = abs(
+        prev_close - prev_open
+    )
+
+    current_body = abs(
+        curr_close - curr_open
+    )
+
+    return (
+        detect_kicking_bullish(
+            prev_open,
+            prev_close,
+            curr_open,
+            curr_close,
+        )
+        and current_body > previous_body
+    )
+    
+def detect_kicking_by_length_bearish(
+    prev_open,
+    prev_close,
+    curr_open,
+    curr_close,
+):
+    previous_body = abs(
+        prev_close - prev_open
+    )
+
+    current_body = abs(
+        curr_close - curr_open
+    )
+
+    return (
+        detect_kicking_bearish(
+            prev_open,
+            prev_close,
+            curr_open,
+            curr_close,
+        )
+        and current_body > previous_body
+    )
+    
