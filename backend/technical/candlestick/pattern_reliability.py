@@ -13,6 +13,33 @@ PATTERN_RELIABILITY = {
 
     "Spinning Top": 52,
     "Marubozu": 75,
+    
+    # Extended Single Candle
+
+    "Takuri Line": 74,
+
+    "Long Lower Shadow": 62,
+    "Long Upper Shadow": 62,
+
+    "Bullish Belt Hold": 78,
+    "Bearish Belt Hold": 78,
+
+    "Rickshaw Man": 60,
+    "High Wave Candle": 58,
+
+    "Paper Umbrella": 72,
+
+    "Shaven Head": 60,
+    "Shaven Bottom": 60,
+
+    "Opening Marubozu": 70,
+    "Closing Marubozu": 70,
+
+    "Bullish Opening Marubozu": 74,
+    "Bearish Opening Marubozu": 74,
+
+    "Bullish Closing Marubozu": 74,
+    "Bearish Closing Marubozu": 74,
 
     # Double Candle
     "Bullish Engulfing": 78,
