@@ -13,8 +13,6 @@ PATTERN_RELIABILITY = {
 
     "Spinning Top": 52,
     "Marubozu": 75,
-    
-    # Extended Single Candle
 
     "Takuri Line": 74,
 
@@ -61,6 +59,27 @@ PATTERN_RELIABILITY = {
     "Bullish Kicker": 88,
     "Bearish Kicker": 88,
 
+    "Bullish Meeting Lines": 70,
+    "Bearish Meeting Lines": 70,
+
+    "Bullish Separating Lines": 76,
+    "Bearish Separating Lines": 76,
+
+    "Bullish Counterattack": 78,
+    "Bearish Counterattack": 78,
+
+    "On Neck Pattern": 68,
+    "In Neck Pattern": 70,
+    "Thrusting Pattern": 72,
+
+    "Homing Pigeon": 72,
+
+    "Kicking Bullish": 88,
+    "Kicking Bearish": 88,
+
+    "Kicking By Length Bullish": 92,
+    "Kicking By Length Bearish": 92,
+
     # Triple Candle
     "Morning Star": 82,
     "Evening Star": 82,
@@ -76,6 +95,66 @@ PATTERN_RELIABILITY = {
 
     "Three Outside Up": 83,
     "Three Outside Down": 83,
+
+    "Tri Star Bullish": 88,
+    "Tri Star Bearish": 88,
+
+    "Advance Block": 78,
+    "Deliberation": 80,
+
+    "Identical Three Crows": 90,
+
+    "Three Stars In The South": 82,
+
+    "Three River Bottom": 80,
+    "Three River Top": 80,
+
+    "Bullish Doji Star": 84,
+    "Bearish Doji Star": 84,
+    
+    # Advanced Patterns
+
+    "Rising Three Methods": 85,
+    "Falling Three Methods": 85,
+
+    "Bullish Abandoned Baby": 92,
+    "Bearish Abandoned Baby": 92,
+
+    "Bullish Tasuki Gap": 82,
+    "Bearish Tasuki Gap": 82,
+
+    "Bullish Window": 72,
+    "Bearish Window": 72,
+
+    "Upside Gap Two Crows": 84,
+
+    "Stick Sandwich": 80,
+
+    "Bullish Mat Hold": 88,
+    "Bearish Mat Hold": 88,
+
+    "Bullish Breakaway": 85,
+    "Bearish Breakaway": 85,
+
+    "Side By Side White Lines": 76,
+
+    "Ladder Bottom": 82,
+
+    "Concealing Baby Swallow": 92,
+
+    "Unique Three River": 82,
+
+    "Matching Three Crows": 84,
+
+    "Gap Three Methods Bullish": 80,
+    "Gap Three Methods Bearish": 80,
+
+    "Three Line Strike": 95,
+
+    "Three Gap Ups": 84,
+    "Three Gap Downs": 84,
+
+    "Gapping Side By Side White Lines": 82,
 }
 
 def get_pattern_reliability(

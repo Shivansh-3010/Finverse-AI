@@ -1,37 +1,31 @@
+from .pattern_reliability import (
+    get_pattern_reliability,
+)
+
+
 def calculate_pattern_confidence(
     pattern_name: str,
     strength: int,
-) -> int:
+) -> float:
     """
-    Pattern confidence score (0-100).
+    Calculate pattern confidence using:
 
-    Phase 8 MVP confidence framework.
+    1. Historical reliability
+    2. Pattern strength
     """
 
-    confidence_map = {
-        "Doji": 65,
-        "Spinning Top": 65,
+    reliability = (
+        get_pattern_reliability(
+            pattern_name
+        )
+    )
 
-        "Hammer": 80,
-        "Shooting Star": 80,
+    confidence = (
+        reliability
+        + (strength * 0.5)
+    )
 
-        "Bullish Engulfing": 85,
-        "Bearish Engulfing": 85,
-
-        "Morning Star": 92,
-        "Evening Star": 92,
-
-        "Three White Soldiers": 95,
-        "Three Black Crows": 95,
-    }
-
-    return confidence_map.get(
-        pattern_name,
-        min(
-            95,
-            max(
-                60,
-                strength * 6,
-            ),
-        ),
+    return round(
+        min(confidence, 95),
+        2
     )

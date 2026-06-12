@@ -5,7 +5,7 @@ from services.candlestick_explainability_service import (
 
 result = (
     CandlestickExplainabilityService.explain(
-        "Hammer"
+        "Spinning Top"
     )
 )
 
