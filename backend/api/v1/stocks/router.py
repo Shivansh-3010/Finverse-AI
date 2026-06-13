@@ -25,12 +25,26 @@ from schemas.candlestick_pattern import (
     CandlestickPatternHistoryResponse,
 )
 
+from services.multi_timeframe_support_resistance_service import (
+    MultiTimeframeSupportResistanceService,
+)
+
+from schemas.multi_timeframe_support_resistance import (
+    MultiTimeframeSupportResistanceResponse,
+)
+
 from services.candlestick_pattern_service import (
     CandlestickPatternService,
 )
 
 from schemas.candlestick_explanation import (
     CandlestickExplanation,
+)
+from services.support_resistance_history_service import (
+    SupportResistanceHistoryService,
+)
+from schemas.support_resistance import (
+    SupportResistanceHistoryResponse,
 )
 
 from services.candlestick_explainability_service import (
@@ -207,4 +221,37 @@ async def get_support_resistance(
     return SupportResistanceService.analyze(
         symbol=symbol,
         timeframe=timeframe
+    )
+    
+@router.get(
+    "/{symbol}/support-resistance/history",
+    response_model=SupportResistanceHistoryResponse,
+)
+async def get_support_resistance_history(
+    symbol: str,
+    timeframe: str = "1d",
+):
+
+    return (
+        SupportResistanceHistoryService
+        .get_history(
+            symbol=symbol,
+            timeframe=timeframe,
+        )
+    )
+    
+@router.get(
+    "/{symbol}/multi-timeframe-support-resistance",
+    response_model=
+        MultiTimeframeSupportResistanceResponse,
+)
+async def get_multi_timeframe_support_resistance(
+    symbol: str,
+):
+
+    return (
+        MultiTimeframeSupportResistanceService
+        .analyze(
+            symbol=symbol
+        )
     )

@@ -2,6 +2,10 @@ from agents.support_resistance_agent.agent import (
     SupportResistanceAgent,
 )
 
+from services.support_resistance_persistence_service import (
+    SupportResistancePersistenceService,
+)
+
 from database.session import SessionLocal
 
 from repositories.ohlcv_repository import (
@@ -62,9 +66,17 @@ class SupportResistanceService:
                 SupportResistanceAgent()
             )
 
-            return agent.analyze(
+            result = agent.analyze(
                 data=data
             )
+
+            SupportResistancePersistenceService.save_snapshot(
+                symbol=symbol,
+                timeframe=timeframe,
+                analysis=result,
+            )
+
+            return result
 
         finally:
             db.close()
