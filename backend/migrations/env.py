@@ -33,6 +33,13 @@ from models.ohlcv_data import OHLCVData
 from models.candlestick_pattern import (
     CandlestickPattern
 )
+from models.support_resistance import (
+    SupportResistance
+)
+
+from models.news_article import (
+    NewsArticle
+)
 
 target_metadata = Base.metadata
 

@@ -10,6 +10,18 @@ from data.ingestion.twelve_data_ingestor import (
     TwelveDataIngestor,
 )
 
+from data.ingestion.news.newsapi_ingestor import (
+    NewsAPIIngestor,
+)
+
+from data.ingestion.news.finnhub_ingestor import (
+    FinnhubIngestor,
+)
+
+from data.ingestion.news.marketaux_ingestor import (
+    MarketauxIngestor,
+)
+
 
 class ProviderManager:
 
@@ -25,6 +37,18 @@ class ProviderManager:
             TwelveDataIngestor()
         )
 
+        self.newsapi = (
+            NewsAPIIngestor()
+        )
+
+        self.finnhub = (
+            FinnhubIngestor()
+        )
+
+        self.marketaux = (
+            MarketauxIngestor()
+        )
+
     def available_providers(self):
 
         providers = ["Yahoo Finance"]
@@ -37,6 +61,21 @@ class ProviderManager:
         if self.twelve_data.is_configured():
             providers.append(
                 "Twelve Data"
+            )
+
+        if self.newsapi.is_configured():
+            providers.append(
+                "NewsAPI"
+            )
+
+        if self.finnhub.is_configured():
+            providers.append(
+                "Finnhub"
+            )
+
+        if self.marketaux.is_configured():
+            providers.append(
+                "Marketaux"
             )
 
         return providers
