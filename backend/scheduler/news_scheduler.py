@@ -12,10 +12,10 @@ from apscheduler.schedulers.background import (
     BackgroundScheduler,
 )
 
-from backend.services.news_collection_service import (
+from services.news_collection_service import (
     NewsCollectionService,
 )
-from backend.services.news_persistence_service import (
+from services.news_persistence_service import (
     NewsPersistenceService
 )
 
@@ -24,9 +24,7 @@ scheduler = BackgroundScheduler()
 
 def collect_news():
 
-    service = (
-        NewsCollectionService()
-    )
+    service = NewsCollectionService()
 
     articles = (
         service.get_company_news_combined(
@@ -37,6 +35,13 @@ def collect_news():
     print(
         f"Articles: {len(articles)}"
     )
+
+    for article in articles:
+
+        NewsPersistenceService.save_article(
+            symbol=article["symbol"],
+            article_data=article
+        )
 
 
 def start_scheduler():
