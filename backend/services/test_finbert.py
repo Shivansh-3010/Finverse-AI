@@ -1,4 +1,4 @@
-from backend.services.finbert_service import (
+from services.finbert_service import (
     FinBERTService
 )
 

@@ -1,4 +1,4 @@
-from backend.services.news_collection_service import (
+from services.news_collection_service import (
     NewsCollectionService,
 )
 

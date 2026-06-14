@@ -2,7 +2,7 @@ import json
 
 from redis import Redis
 
-from backend.core.settings import settings
+from core.settings import settings
 
 
 class MarketDataCache:

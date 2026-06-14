@@ -1,5 +1,5 @@
-from backend.cache.market_data_cache import MarketDataCache
-from backend.services.market_data_service import MarketDataService
+from cache.market_data_cache import MarketDataCache
+from services.market_data_service import MarketDataService
 
 
 cache = MarketDataCache()

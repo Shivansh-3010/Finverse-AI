@@ -1,20 +1,20 @@
-from backend.news.event_detection.event_detector import (
+from news.event_detection.event_detector import (
     EventDetector
 )
 
-from backend.news.event_detection.event_scoring import (
+from news.event_detection.event_scoring import (
     EventScoring
 )
 
-from backend.news.news_score_engine import (
+from news.news_score_engine import (
     NewsScoreEngine
 )
 
-from backend.news.news_score_interpreter import (
+from news.news_score_interpreter import (
     NewsScoreInterpreter
 )
 
-from backend.services.finbert_service import (
+from services.finbert_service import (
     FinBERTService
 )
 

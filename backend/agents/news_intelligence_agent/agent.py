@@ -1,4 +1,4 @@
-from backend.news.news_pipeline import (
+from news.news_pipeline import (
     NewsPipeline
 )
 

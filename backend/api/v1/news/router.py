@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from schemas.base_response import BaseResponse
 
-from backend.agents.news_intelligence_agent.agent import (
+from agents.news_intelligence_agent.agent import (
     NewsIntelligenceAgent
 )
 
