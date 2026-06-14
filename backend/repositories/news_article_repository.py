@@ -61,28 +61,6 @@ class NewsArticleRepository:
         )
 
         return saved_article
-    
-    def exists_by_provider_article(
-        self,
-        provider: str,
-        provider_article_id: str
-    ):
-
-        return (
-            self.db.query(
-                NewsArticle
-            )
-            .filter(
-                NewsArticle.provider
-                == provider,
-
-                NewsArticle
-                .provider_article_id
-                == provider_article_id
-            )
-            .first()
-            is not None
-        )
         
     def exists_by_provider_article_id(
         self,

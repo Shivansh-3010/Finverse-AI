@@ -41,7 +41,13 @@ class NewsPersistenceService:
 
             entity = NewsArticle(
                 symbol=symbol,
-                title=article_data["headline"],
+                title=article_data.get(
+                    "title",
+                    article_data.get(
+                        "headline",
+                        ""
+                    )
+                ),
                 source=article_data.get(
                     "source",
                     "Unknown"
@@ -76,9 +82,13 @@ class NewsPersistenceService:
                     "news_score"
                 ],
                 url="",
-                content=article_data[
-                    "headline"
-                ]
+                content=article_data.get(
+                    "content",
+                    article_data.get(
+                        "headline",
+                        ""
+                    )
+                )
             )
 
             return repository.save(

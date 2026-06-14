@@ -305,17 +305,37 @@ class NewsCollectionService:
 
         articles = []
 
-        articles.extend(
+        finnhub_articles = (
             self.get_company_news(
                 symbol
             )
         )
 
-        articles.extend(
+        newsapi_articles = (
             self.get_company_news_newsapi(
                 symbol
             )
         )
+
+        articles.extend(
+            finnhub_articles
+        )
+
+        articles.extend(
+            newsapi_articles
+        )
+
+        if (
+            len(finnhub_articles) == 0
+            and
+            len(newsapi_articles) == 0
+        ):
+
+            articles.extend(
+                self.get_company_news_marketaux(
+                    symbol
+                )
+            )
 
         seen_titles = set()
 
@@ -350,3 +370,90 @@ class NewsCollectionService:
         )
 
         return unique_articles[:100]
+    
+    def get_company_news_marketaux(
+        self,
+        symbol: str
+    ):
+
+        articles = []
+
+        if (
+            self.providers.marketaux
+            .is_configured()
+        ):
+
+            try:
+
+                response = (
+                    self.providers.marketaux
+                    .get_company_news(
+                        symbols=symbol,
+                        limit=20
+                    )
+                )
+
+                for article in (
+                    response.get(
+                        "data",
+                        []
+                    )
+                ):
+
+                    normalized_article = (
+                        self.normalizer
+                        .normalize_article(
+
+                            title=
+                                article.get(
+                                    "title",
+                                    ""
+                                ),
+
+                            source=
+                                article.get(
+                                    "source",
+                                    ""
+                                ),
+
+                            published_at=
+                                article.get(
+                                    "published_at",
+                                    ""
+                                ),
+
+                            symbol=symbol,
+
+                            content=
+                                article.get(
+                                    "description",
+                                    ""
+                                ) or "",
+
+                            url=
+                                article.get(
+                                    "url",
+                                    ""
+                                ),
+
+                            provider="marketaux",
+
+                            provider_article_id=
+                                str(
+                                    article.get(
+                                        "uuid",
+                                        ""
+                                    )
+                                ),
+                        )
+                    )
+
+                    articles.append(
+                        normalized_article
+                    )
+
+            except Exception:
+
+                pass
+
+        return articles
