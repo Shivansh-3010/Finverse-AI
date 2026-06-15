@@ -17,6 +17,9 @@ from scheduler.market_data_scheduler import (
     start_scheduler,
     stop_scheduler,
 )
+from api.v1.predictions.router import (
+    router as predictions_router
+)
 
 
 app = FastAPI(
@@ -60,6 +63,12 @@ app.include_router(
     recommendations_router,
     prefix="/api/v1/recommendations",
     tags=["Recommendations"]
+)
+
+app.include_router(
+    predictions_router,
+    prefix="/api/v1/predictions",
+    tags=["Predictions"]
 )
 
 app.include_router(
