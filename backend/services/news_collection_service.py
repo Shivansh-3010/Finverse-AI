@@ -20,6 +20,14 @@ from news.news_pipeline import (
     NewsPipeline
 )
 
+from services.news_embedding_service import (
+    NewsEmbeddingService
+)
+
+from metrics.monitoring_metrics import (
+    MonitoringMetrics,
+)
+
 from datetime import (
     datetime,
     timedelta,
@@ -41,6 +49,10 @@ class NewsCollectionService:
         
         self.pipeline = (
             NewsPipeline()
+        )
+        
+        self.embedding_service = (
+            NewsEmbeddingService()
         )
 
     def get_available_news_providers(self):
@@ -177,10 +189,16 @@ class NewsCollectionService:
                     ] = analysis[
                         "news_score"
                     ]
+                    
+                    self.embedding_service.store_article(
+                        normalized_article
+                    )
 
                     articles.append(
                         normalized_article
                     )
+                    
+                    MonitoringMetrics.increment_articles_processed()
 
             except Exception:
 
@@ -296,10 +314,16 @@ class NewsCollectionService:
                     ] = analysis[
                         "news_score"
                     ]
+                    
+                    self.embedding_service.store_article(
+                        normalized_article
+                    )
 
                     articles.append(
                         normalized_article
                     )
+                    
+                    MonitoringMetrics.increment_articles_processed()
 
             except Exception as e:
 
@@ -462,6 +486,8 @@ class NewsCollectionService:
                     articles.append(
                         normalized_article
                     )
+                    
+                    MonitoringMetrics.increment_articles_processed()
 
             except Exception:
 

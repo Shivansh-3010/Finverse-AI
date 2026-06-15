@@ -6,7 +6,7 @@ service = NewsCollectionService()
 
 result = (
     service.get_company_news_combined(
-        "AAPL"
+        "RELIANCE"
     )
 )
 

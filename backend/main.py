@@ -6,6 +6,8 @@ from api.v1.news.router import router as news_router
 from api.v1.risk.router import router as risk_router
 from api.v1.recommendations.router import router as recommendations_router
 from api.v1.copilot.router import router as copilot_router
+from api.v1.metrics.router import router as metrics_router
+
 from logger.logger import setup_logger
 from exceptions.handlers import generic_exception_handler
 from middleware.request_logger import RequestLoggerMiddleware
@@ -64,6 +66,12 @@ app.include_router(
     copilot_router,
     prefix="/api/v1/copilot",
     tags=["Copilot"]
+)
+
+app.include_router(
+    metrics_router,
+    prefix="/api/v1/metrics",
+    tags=["Metrics"]
 )
 
 app.include_router(
