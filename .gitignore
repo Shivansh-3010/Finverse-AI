@@ -47,3 +47,6 @@ backend/finverse_backup.sql
 # Python cache
 __pycache__/
 *.pyc
+
+# ChromaDB local vector storage
+database/chromadb/
