@@ -1,9 +1,14 @@
 import os
 import requests
 
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv("backend/.env.development")
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+
+load_dotenv(
+    PROJECT_ROOT / "backend" / ".env.development"
+)
 
 
 class MarketauxIngestor:
