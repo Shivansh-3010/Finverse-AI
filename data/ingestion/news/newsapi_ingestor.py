@@ -24,7 +24,9 @@ class NewsAPIIngestor:
     def get_company_news(
         self,
         query: str,
-        page_size: int = 20
+        page_size: int = 100,
+        from_date: str | None = None,
+        to_date: str | None = None,
     ):
 
         if not self.api_key:
@@ -34,11 +36,18 @@ class NewsAPIIngestor:
 
         params = {
             "q": query,
+            "searchIn": "title",
             "language": "en",
             "sortBy": "publishedAt",
             "pageSize": page_size,
             "apiKey": self.api_key
         }
+        
+        if from_date:
+            params["from"] = from_date
+
+        if to_date:
+            params["to"] = to_date
 
         response = requests.get(
             self.BASE_URL,

@@ -21,6 +21,9 @@ from data.ingestion.news.finnhub_ingestor import (
 from data.ingestion.news.marketaux_ingestor import (
     MarketauxIngestor,
 )
+from data.ingestion.news.google_news_ingestor import (
+    GoogleNewsIngestor,
+)
 
 
 class ProviderManager:
@@ -47,6 +50,10 @@ class ProviderManager:
 
         self.marketaux = (
             MarketauxIngestor()
+        )
+        
+        self.google_news = (
+            GoogleNewsIngestor()
         )
 
     def available_providers(self):
@@ -77,5 +84,9 @@ class ProviderManager:
             providers.append(
                 "Marketaux"
             )
+        
+        providers.append(
+            "Google News"
+        )
 
         return providers

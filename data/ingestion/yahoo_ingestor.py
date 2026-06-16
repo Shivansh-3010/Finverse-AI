@@ -26,3 +26,28 @@ class YahooIngestor:
         )
 
         return df
+    
+    def get_company_name(
+        self,
+        symbol: str
+    ) -> str:
+
+        try:
+
+            ticker = yf.Ticker(
+                f"{symbol}.NS"
+            )
+
+            info = ticker.info
+
+            return (
+                info.get(
+                    "longName"
+                )
+                or
+                symbol
+            )
+
+        except Exception:
+
+            return symbol

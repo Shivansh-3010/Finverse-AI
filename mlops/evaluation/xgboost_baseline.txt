@@ -1,0 +1,28 @@
+Model: XGBoost Baseline V1
+
+Features:
+- RSI
+- MACD
+- MACD Signal
+- ATR
+
+Rows:
+1204
+
+Train:
+963
+
+Test:
+241
+
+MAE:
+1.0472
+
+RMSE:
+1.3681
+
+MAPE:
+304.609
+
+Directional Accuracy:
+48.75
