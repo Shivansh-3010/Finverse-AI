@@ -51,6 +51,7 @@ class CandlestickAnalysisService:
                 CandlestickPatternPersistenceService.save_patterns(
                     symbol=symbol,
                     timeframe=timeframe,
+                    timestamp=records[0].timestamp,
                     candlestick_score=
                         result["candlestick_score"],
                     patterns=result["patterns"],

@@ -43,7 +43,9 @@ class FeatureBuilder:
 
         news = (
             NewsArticleRepository(db)
-            .get_latest(symbol)
+            .get_recent_summary(
+                symbol
+            )
         )
 
         risk = (
@@ -56,24 +58,28 @@ class FeatureBuilder:
 
         features = [
             getattr(technical, "rsi", 0.0),
-            getattr(technical, "mfi", 0.0),
             getattr(technical, "macd", 0.0),
             getattr(technical, "macd_signal", 0.0),
-            getattr(technical, "adx", 0.0),
             getattr(technical, "atr", 0.0),
+            getattr(technical, "adx", 0.0),
+            getattr(technical, "mfi", 0.0),
+            getattr(technical, "obv", 0.0),
+            getattr(technical, "vwap", 0.0),
+            getattr(technical, "bb_upper", 0.0),
+            getattr(technical, "bb_middle", 0.0),
+            getattr(technical, "bb_lower", 0.0),
 
             getattr(pattern, "strength", 0.0),
             getattr(pattern, "confidence", 0.0),
             getattr(pattern, "candlestick_score", 0.0),
 
-            getattr(news, "news_score", 0.0),
-            getattr(news, "confidence", 0.0),
-
-            getattr(risk, "volatility", 0.0),
-            getattr(risk, "drawdown", 0.0),
-            getattr(risk, "var_95", 0.0),
-            getattr(risk, "expected_shortfall", 0.0),
-            getattr(risk, "risk_score", 0.0),
+            news["avg_news_score"],
+            news["avg_confidence"],
+            news["article_count"],
+            news["recent_article_count"],
+            news["positive_count"],
+            news["negative_count"],
+            news["neutral_count"],
         ]
 
         return [

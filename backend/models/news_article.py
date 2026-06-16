@@ -45,7 +45,7 @@ class NewsArticle(Base):
 
     provider_article_id: Mapped[str] = (
         mapped_column(
-            String(200)
+            Text
         )
     )
 

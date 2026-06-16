@@ -5,6 +5,7 @@ def ohlcv_to_dataframe(records):
 
     return pd.DataFrame([
         {
+            "timestamp": record.timestamp,
             "high": record.high,
             "low": record.low,
             "close": record.close,

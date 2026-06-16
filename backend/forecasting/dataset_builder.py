@@ -30,12 +30,21 @@ from technical.volume.vwap import (
 from technical.volatility.bollinger_bands import (
     calculate_bollinger_bands,
 )
+from repositories.candlestick_pattern_repository import (
+    CandlestickPatternRepository,
+)
+from forecasting.news_feature_builder import (
+    NewsFeatureBuilder,
+)
 
 
 class DatasetBuilder:
 
     @staticmethod
-    def build(df: pd.DataFrame):
+    def build(
+        df: pd.DataFrame,
+        candlestick_features=None,
+    ):
 
         dataset = df.copy()
 
@@ -88,6 +97,29 @@ class DatasetBuilder:
         dataset["bb_lower"] = (
             bb["lower_band"]
         )
+        
+        if candlestick_features is not None:
+
+            dataset = dataset.merge(
+                candlestick_features,
+                on="timestamp",
+                how="left"
+            )
+
+            dataset["strength"] = (
+                dataset["strength"]
+                .fillna(0.0)
+            )
+
+            dataset["confidence"] = (
+                dataset["confidence"]
+                .fillna(0.0)
+            )
+
+            dataset["candlestick_score"] = (
+                dataset["candlestick_score"]
+                .fillna(0.0)
+            )
 
         dataset["target"] = (
             dataset["close"]

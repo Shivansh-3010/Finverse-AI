@@ -72,7 +72,9 @@ class NewsCollectionService:
     
     def get_company_news(
         self,
-        symbol: str
+        symbol: str,
+        from_date=None,
+        to_date=None
     ):
 
         articles = []
@@ -84,15 +86,19 @@ class NewsCollectionService:
 
             try:
 
-                to_date = (
-                    datetime.utcnow()
-                    .date()
-                )
+                if to_date is None:
 
-                from_date = (
-                    to_date -
-                    timedelta(days=7)
-                )
+                    to_date = (
+                        datetime.utcnow()
+                        .date()
+                    )
+
+                if from_date is None:
+
+                    from_date = (
+                        to_date -
+                        timedelta(days=7)
+                    )
 
                 finnhub_news = (
                     self.providers.finnhub
@@ -200,9 +206,11 @@ class NewsCollectionService:
                     
                     MonitoringMetrics.increment_articles_processed()
 
-            except Exception:
+            except Exception as e:
 
-                pass
+                print(
+                    f"Finnhub Error: {e}"
+                )
 
         return articles
     
@@ -220,10 +228,17 @@ class NewsCollectionService:
 
             try:
 
+                company_name = (
+                    self.providers.yahoo
+                    .get_company_name(
+                        symbol
+                    )
+                )
+
                 response = (
                     self.providers.newsapi
                     .get_company_news(
-                        query=symbol
+                        query=company_name
                     )
                 )
 
@@ -333,18 +348,72 @@ class NewsCollectionService:
 
         return articles
     
-    def get_company_news_combined(
+    def get_company_news_google(
         self,
         symbol: str
     ):
 
         articles = []
 
-        finnhub_articles = (
-            self.get_company_news(
-                symbol
+        try:
+
+            company_name = (
+                self.providers.yahoo
+                .get_company_name(
+                    symbol
+                )
             )
-        )
+
+            response = (
+                self.providers.google_news
+                .get_company_news(
+                    query=company_name
+                )
+            )
+            
+            for article in response:
+                article["symbol"] = symbol
+                
+                analysis = (
+                    self.pipeline.analyze(
+                        article["title"]
+                    )
+                )
+
+                article["events"] = (
+                    analysis["events"]
+                )
+
+                article["sentiment"] = (
+                    analysis["sentiment"]
+                )
+
+                article["confidence"] = (
+                    analysis["confidence"]
+                )
+
+                article["news_score"] = (
+                    analysis["news_score"]
+                )
+
+            articles.extend(
+                response
+            )
+
+        except Exception as e:
+
+            print(
+                f"Google News Error: {e}"
+            )
+
+        return articles
+    
+    def get_company_news_combined(
+        self,
+        symbol: str
+    ):
+
+        all_articles = []
 
         newsapi_articles = (
             self.get_company_news_newsapi(
@@ -352,31 +421,47 @@ class NewsCollectionService:
             )
         )
 
-        articles.extend(
-            finnhub_articles
+        finnhub_articles = (
+            self.get_company_news(
+                symbol
+            )
+        )
+        
+        google_articles = (
+            self.get_company_news_google(
+                symbol
+            )
         )
 
-        articles.extend(
+        all_articles.extend(
             newsapi_articles
         )
 
-        if (
-            len(finnhub_articles) == 0
-            and
-            len(newsapi_articles) == 0
-        ):
+        all_articles.extend(
+            finnhub_articles
+        )
+        
+        all_articles.extend(
+            google_articles
+        )
 
-            articles.extend(
-                self.get_company_news_marketaux(
-                    symbol
-                )
-            )
+#        if (
+#            len(newsapi_articles) == 0
+#            and
+#            len(finnhub_articles) == 0
+#        ):
+
+#            all_articles.extend(
+#                self.get_company_news_marketaux(
+#                    symbol
+#                )
+#            )
 
         seen_titles = set()
 
         unique_articles = []
 
-        for article in articles:
+        for article in all_articles:
 
             title = (
                 article["title"]
@@ -489,8 +574,10 @@ class NewsCollectionService:
                     
                     MonitoringMetrics.increment_articles_processed()
 
-            except Exception:
+            except Exception as e:
 
-                pass
+                print(
+                    f"Marketaux Error: {e}"
+                )
 
         return articles
