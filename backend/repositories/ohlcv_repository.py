@@ -74,3 +74,22 @@ class OHLCVRepository:
             .order_by(OHLCVData.timestamp)
             .all()
         )
+        
+    def get_latest_candle(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+        return (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe
+            )
+            .order_by(
+                desc(
+                    OHLCVData.timestamp
+                )
+            )
+            .first()
+        )
