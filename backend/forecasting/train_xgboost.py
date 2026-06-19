@@ -46,8 +46,18 @@ from repositories.news_article_repository import (
 from forecasting.news_feature_builder import (
     NewsFeatureBuilder,
 )
+from forecasting.horizons import (
+    HORIZON_DAYS,
+)
 
-def train():
+def train(
+    horizon: str = "1d",
+):
+    if horizon not in HORIZON_DAYS:
+
+        raise ValueError(
+            f"Unsupported horizon: {horizon}"
+        )
 
     db = SessionLocal()
 
@@ -98,7 +108,9 @@ def train():
 
         dataset = DatasetBuilder.build(
             df,
-            candlestick_features
+            candlestick_features,
+            horizon_days=
+                HORIZON_DAYS[horizon],
         )
         
         if not news_features.empty:
@@ -200,12 +212,12 @@ def train():
 
         joblib.dump(
             model,
-            "models/xgboost/reliance_xgb.pkl"
+            f"models/xgboost/reliance_xgb_{horizon}.pkl"
         )
 
         joblib.dump(
             list(X.columns),
-            "models/xgboost/reliance_xgb_features.pkl"
+            f"models/xgboost/reliance_xgb_features_{horizon}.pkl"
         )
 
         predictions = model.predict(
@@ -232,6 +244,11 @@ def train():
                 y_test.values,
                 predictions
             )
+        )
+        
+        print(
+            "Horizon:",
+            horizon
         )
 
         print(
@@ -290,4 +307,6 @@ def train():
 
 
 if __name__ == "__main__":
-    train()
+    train(
+        horizon="5d"
+    )

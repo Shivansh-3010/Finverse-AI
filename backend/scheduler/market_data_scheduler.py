@@ -44,7 +44,7 @@ def start_scheduler():
     scheduler.add_job(
         ingest_market_data,
         trigger="interval",
-        minutes=15,
+        minutes=10,
         id="market_data_ingestion",
         replace_existing=True,
     )

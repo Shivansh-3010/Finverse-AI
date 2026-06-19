@@ -93,3 +93,20 @@ class OHLCVRepository:
             )
             .first()
         )
+        
+    def exists(
+        self,
+        symbol: str,
+        timeframe: str,
+        timestamp,
+    ):
+        return (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe,
+                OHLCVData.timestamp == timestamp,
+            )
+            .first()
+            is not None
+        )

@@ -44,6 +44,7 @@ class DatasetBuilder:
     def build(
         df: pd.DataFrame,
         candlestick_features=None,
+        horizon_days: int = 1,
     ):
 
         dataset = df.copy()
@@ -122,11 +123,13 @@ class DatasetBuilder:
             )
 
         dataset["target"] = (
-            dataset["close"]
-            .pct_change()
-            .shift(-1)
-            * 100
-        )
+            (
+                dataset["close"]
+                .shift(-horizon_days)
+                - dataset["close"]
+            )
+            / dataset["close"]
+        ) * 100
 
         dataset = dataset.dropna()
 

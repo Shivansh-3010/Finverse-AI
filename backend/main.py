@@ -20,6 +20,15 @@ from scheduler.market_data_scheduler import (
 from api.v1.predictions.router import (
     router as predictions_router
 )
+from scheduler.market_data_scheduler import (
+    start_scheduler as start_market_scheduler,
+    stop_scheduler as stop_market_scheduler,
+)
+
+from scheduler.news_scheduler import (
+    start_scheduler as start_news_scheduler,
+    stop_scheduler as stop_news_scheduler,
+)
 
 
 app = FastAPI(
@@ -92,10 +101,12 @@ app.include_router(
 @app.on_event("startup")
 async def startup_event():
 
-    start_scheduler()
+    start_market_scheduler()
+    start_news_scheduler()
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
 
-    stop_scheduler()
+    stop_market_scheduler()
+    stop_news_scheduler()

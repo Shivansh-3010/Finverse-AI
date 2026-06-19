@@ -83,3 +83,58 @@ class TechnicalIndicatorRepository:
         self.db.refresh(saved_indicator)
 
         return saved_indicator
+    
+    def bulk_insert(
+        self,
+        indicators: list
+    ):
+
+        self.db.bulk_save_objects(
+            indicators
+        )
+
+        self.db.commit()
+        
+    def exists(
+        self,
+        symbol: str,
+        timeframe: str,
+        timestamp,
+    ):
+
+        return (
+            self.db.query(
+                TechnicalIndicator
+            )
+            .filter(
+                TechnicalIndicator.symbol == symbol,
+
+                TechnicalIndicator.timeframe == timeframe,
+
+                TechnicalIndicator.timestamp == timestamp,
+            )
+            .first()
+            is not None
+        )
+        
+    def get_existing_timestamps(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+
+        rows = (
+            self.db.query(
+                TechnicalIndicator.timestamp
+            )
+            .filter(
+                TechnicalIndicator.symbol == symbol,
+                TechnicalIndicator.timeframe == timeframe
+            )
+            .all()
+        )
+
+        return {
+            row[0]
+            for row in rows
+        }

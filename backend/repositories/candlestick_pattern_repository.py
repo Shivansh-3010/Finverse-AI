@@ -85,3 +85,37 @@ class CandlestickPatternRepository:
         self.db.refresh(saved_pattern)
 
         return saved_pattern
+    
+    def bulk_insert(
+        self,
+        patterns: list,
+    ):
+
+        self.db.bulk_save_objects(
+            patterns
+        )
+
+        self.db.commit()
+        
+    def get_existing_timestamps(
+        self,
+        symbol: str,
+        timeframe: str,
+    ):
+
+        rows = (
+            self.db.query(
+                CandlestickPattern.timestamp
+            )
+            .filter(
+                CandlestickPattern.symbol == symbol,
+                CandlestickPattern.timeframe == timeframe,
+            )
+            .distinct()
+            .all()
+        )
+
+        return {
+            row[0]
+            for row in rows
+        }

@@ -6,10 +6,12 @@ class PredictionService:
     @staticmethod
     def generate(
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         return PredictionAgent.predict(
             symbol=symbol,
-            timeframe=timeframe
+            timeframe=timeframe,
+            horizon=horizon,
         )

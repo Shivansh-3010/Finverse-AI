@@ -15,17 +15,21 @@ MODEL_DIR = (
 class ModelLoader:
 
     @staticmethod
-    def load_model():
+    def load_model(
+        horizon: str = "1d",
+    ):
 
         return joblib.load(
             MODEL_DIR /
-            "reliance_xgb.pkl"
+            f"reliance_xgb_{horizon}.pkl"
         )
 
     @staticmethod
-    def load_features():
+    def load_features(
+        horizon: str = "1d",
+    ):
 
         return joblib.load(
             MODEL_DIR /
-            "reliance_xgb_features.pkl"
+            f"reliance_xgb_features_{horizon}.pkl"
         )

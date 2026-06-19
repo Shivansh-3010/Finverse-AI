@@ -17,7 +17,8 @@ class EnsembleForecastService:
     def forecast(
         db,
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         comparison = (
@@ -25,6 +26,7 @@ class EnsembleForecastService:
                 db=db,
                 symbol=symbol,
                 timeframe=timeframe,
+                horizon=horizon,
             )
         )
 

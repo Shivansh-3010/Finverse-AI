@@ -34,7 +34,8 @@ class PredictionRepository:
     def get_latest(
         self,
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         return (
@@ -43,7 +44,8 @@ class PredictionRepository:
             )
             .filter(
                 Prediction.symbol == symbol,
-                Prediction.timeframe == timeframe
+                Prediction.timeframe == timeframe,
+                Prediction.horizon == horizon,
             )
             .order_by(
                 desc(
@@ -56,7 +58,8 @@ class PredictionRepository:
     def get_history(
         self,
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         return (
@@ -65,7 +68,8 @@ class PredictionRepository:
             )
             .filter(
                 Prediction.symbol == symbol,
-                Prediction.timeframe == timeframe
+                Prediction.timeframe == timeframe,
+                Prediction.horizon == horizon,
             )
             .order_by(
                 Prediction.timestamp

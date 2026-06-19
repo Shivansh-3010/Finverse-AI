@@ -2,31 +2,22 @@ from forecasting.model_loader import (
     ModelLoader,
 )
 
-
-def test():
-
-    model = (
-        ModelLoader.load_model()
+model = (
+    ModelLoader.load_model(
+        "5d"
     )
+)
 
-    features = (
-        ModelLoader.load_features()
+print(
+    type(model).__name__
+)
+
+features = (
+    ModelLoader.load_features(
+        "5d"
     )
+)
 
-    print(
-        "Model:",
-        type(model).__name__
-    )
-
-    print(
-        "Feature Count:",
-        len(features)
-    )
-
-    print(
-        features
-    )
-
-
-if __name__ == "__main__":
-    test()
+print(
+    len(features)
+)

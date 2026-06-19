@@ -43,7 +43,7 @@ class FeatureBuilder:
 
         news = (
             NewsArticleRepository(db)
-            .get_recent_summary(
+            .get_combined_summary(
                 symbol
             )
         )

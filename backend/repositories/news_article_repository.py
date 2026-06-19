@@ -145,6 +145,68 @@ class NewsArticleRepository:
                     == "neutral"
                 ),
         }
+        
+    def get_combined_summary(
+        self,
+        symbol: str,
+        limit: int = 20
+    ):
+
+        company_news = (
+            self.get_recent_summary(
+                symbol,
+                limit
+            )
+        )
+
+        market_news = (
+            self.get_recent_summary(
+                "MARKET",
+                limit
+            )
+        )
+
+        return {
+
+            "avg_news_score":
+                (
+                    company_news["avg_news_score"]
+                    +
+                    market_news["avg_news_score"]
+                ) / 2,
+
+            "avg_confidence":
+                (
+                    company_news["avg_confidence"]
+                    +
+                    market_news["avg_confidence"]
+                ) / 2,
+
+            "article_count":
+                company_news["article_count"]
+                +
+                market_news["article_count"],
+
+            "recent_article_count":
+                company_news["recent_article_count"]
+                +
+                market_news["recent_article_count"],
+
+            "positive_count":
+                company_news["positive_count"]
+                +
+                market_news["positive_count"],
+
+            "negative_count":
+                company_news["negative_count"]
+                +
+                market_news["negative_count"],
+
+            "neutral_count":
+                company_news["neutral_count"]
+                +
+                market_news["neutral_count"],
+        }
 
     def save(
         self,

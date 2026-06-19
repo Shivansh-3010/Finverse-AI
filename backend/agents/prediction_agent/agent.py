@@ -32,6 +32,9 @@ from services.ensemble_forecast_service import (
 from forecasting.explainability_engine import (
     ExplainabilityEngine,
 )
+from forecasting.horizons import (
+    SUPPORTED_HORIZONS,
+)
 
 
 class PredictionAgent:
@@ -39,10 +42,17 @@ class PredictionAgent:
     @staticmethod
     def predict(
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ) -> Dict:
 
         db = SessionLocal()
+        
+        if horizon not in SUPPORTED_HORIZONS:
+
+            raise ValueError(
+                f"Unsupported horizon: {horizon}"
+            )
 
         try:
 
@@ -53,11 +63,15 @@ class PredictionAgent:
             )
 
             feature_names = (
-                ModelLoader.load_features()
+                ModelLoader.load_features(
+                    horizon=horizon
+                )
             )
 
             model = (
-                ModelLoader.load_model()
+                ModelLoader.load_model(
+                    horizon=horizon
+                )
             )
 
             X = pd.DataFrame(
@@ -103,7 +117,7 @@ class PredictionAgent:
                 prediction_value=prediction,
                 confidence=confidence,
                 model_name="xgboost",
-                horizon="1d",
+                horizon=horizon,
             )
 
             ensemble = (
@@ -111,6 +125,7 @@ class PredictionAgent:
                     db=db,
                     symbol=symbol,
                     timeframe=timeframe,
+                    horizon=horizon,
                 )
             )
 
@@ -137,6 +152,7 @@ class PredictionAgent:
             return {
                 "symbol": symbol,
                 "timeframe": timeframe,
+                "horizon": horizon,
 
                 "forecast":
                     explanation["forecast"],

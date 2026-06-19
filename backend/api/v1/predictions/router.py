@@ -15,13 +15,15 @@ router = APIRouter()
 )
 async def get_prediction(
     symbol: str,
-    timeframe: str = "1d"
+    timeframe: str = "1d",
+    horizon: str = "1d",
 ):
 
     result = (
         PredictionService.generate(
             symbol=symbol,
-            timeframe=timeframe
+            timeframe=timeframe,
+            horizon=horizon,
         )
     )
 

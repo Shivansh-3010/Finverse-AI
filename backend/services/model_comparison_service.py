@@ -47,7 +47,8 @@ class ModelComparisonService:
     def compare(
         db,
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         features = (
@@ -59,11 +60,15 @@ class ModelComparisonService:
         )
 
         feature_names = (
-            ModelLoader.load_features()
+            ModelLoader.load_features(
+                horizon=horizon
+            )
         )
 
         model = (
-            ModelLoader.load_model()
+            ModelLoader.load_model(
+                horizon=horizon
+            )
         )
 
         X = pd.DataFrame(
