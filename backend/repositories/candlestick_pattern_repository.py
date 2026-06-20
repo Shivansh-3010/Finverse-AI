@@ -119,3 +119,29 @@ class CandlestickPatternRepository:
             row[0]
             for row in rows
         }
+        
+    def get_existing_keys(
+        self,
+        symbol: str,
+        timeframe: str
+    ):
+
+        rows = (
+            self.db.query(
+                CandlestickPattern.timestamp,
+                CandlestickPattern.pattern_name,
+            )
+            .filter(
+                CandlestickPattern.symbol == symbol,
+                CandlestickPattern.timeframe == timeframe,
+            )
+            .all()
+        )
+
+        return {
+            (
+                row.timestamp,
+                row.pattern_name,
+            )
+            for row in rows
+        }

@@ -25,7 +25,8 @@ class CandlestickPattern(Base):
     )
 
     pattern_name: Mapped[str] = mapped_column(
-        String(100)
+        String(100),
+        primary_key=True
     )
 
     signal: Mapped[str] = mapped_column(

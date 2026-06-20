@@ -5,27 +5,21 @@ from services.historical_candlestick_backfill_service import (
 )
 
 
-def main():
+db = SessionLocal()
 
-    db = SessionLocal()
+try:
 
-    try:
-
-        result = (
-            HistoricalCandlestickBackfillService
-            .backfill_symbol(
-                db=db,
-                symbol="RELIANCE",
-                timeframe="1d",
-            )
+    result = (
+        HistoricalCandlestickBackfillService
+        .backfill_symbol(
+            db=db,
+            symbol="RELIANCE",
+            timeframe="1d",
         )
+    )
 
-        print(result)
+    print(result)
 
-    finally:
+finally:
 
-        db.close()
-
-
-if __name__ == "__main__":
-    main()
+    db.close()

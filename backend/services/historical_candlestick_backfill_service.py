@@ -32,9 +32,9 @@ class HistoricalCandlestickBackfillService:
             CandlestickPatternRepository(db)
         )
 
-        existing_timestamps = (
+        existing_keys = (
             pattern_repository
-            .get_existing_timestamps(
+            .get_existing_keys(
                 symbol,
                 timeframe,
             )
@@ -42,7 +42,7 @@ class HistoricalCandlestickBackfillService:
 
         print(
             f"{symbol}: "
-            f"{len(existing_timestamps):,} "
+            f"{len(existing_keys):,} "
             f"existing patterns"
         )
 
@@ -74,13 +74,6 @@ class HistoricalCandlestickBackfillService:
 
             current_candle = candles[i]
 
-            if (
-                current_candle.timestamp
-                in existing_timestamps
-            ):
-                skipped += 1
-                continue
-
             try:
 
                 history = candles[: i + 1]
@@ -99,6 +92,16 @@ class HistoricalCandlestickBackfillService:
                     continue
 
                 for pattern in patterns:
+                    
+                    key = (
+                        current_candle.timestamp,
+                        pattern["pattern"],
+                    )
+
+                    if key in existing_keys:
+                        continue
+                    
+                    existing_keys.add(key)
 
                     patterns_to_save.append(
 
