@@ -110,3 +110,54 @@ class OHLCVRepository:
             .first()
             is not None
         )
+        
+    def get_existing_timestamps(
+        self,
+        symbol: str,
+        timeframe: str,
+    ):
+
+        rows = (
+            self.db.query(
+                OHLCVData.timestamp
+            )
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe,
+            )
+            .all()
+        )
+
+        return {
+            row[0]
+            for row in rows
+        }
+        
+    def update_corporate_actions(
+        self,
+        symbol: str,
+        timeframe: str,
+        timestamp,
+        dividend: float,
+        stock_split: float,
+    ):
+
+        candle = (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe,
+                OHLCVData.timestamp == timestamp,
+            )
+            .first()
+        )
+
+        if not candle:
+            return False
+
+        candle.dividend = dividend
+        candle.stock_split = stock_split
+
+        self.db.commit()
+
+        return True

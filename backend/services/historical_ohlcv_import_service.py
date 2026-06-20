@@ -20,7 +20,9 @@ class HistoricalOHLCVImportService:
         csv_file = Path(csv_path)
 
         symbol = (
-            csv_file.stem.upper()
+            csv_file.stem
+            .upper()
+            .replace(".NS", "")
         )
 
         df = pd.read_csv(
@@ -50,11 +52,34 @@ class HistoricalOHLCVImportService:
                     )
                 )
 
+                dividend = float(
+                    row.get(
+                        "Dividends",
+                        0.0
+                    )
+                )
+
+                stock_split = float(
+                    row.get(
+                        "Stock Splits",
+                        0.0
+                    )
+                )
+
                 if repository.exists(
                     symbol=symbol,
                     timeframe=timeframe,
                     timestamp=timestamp,
                 ):
+
+                    repository.update_corporate_actions(
+                        symbol=symbol,
+                        timeframe=timeframe,
+                        timestamp=timestamp,
+                        dividend=dividend,
+                        stock_split=stock_split,
+                    )
+
                     skipped += 1
                     continue
 
@@ -83,6 +108,10 @@ class HistoricalOHLCVImportService:
                         "volume": int(
                             row["Volume"]
                         ),
+
+                        "dividend": dividend,
+
+                        "stock_split": stock_split,
                     }
                 )
 
@@ -102,7 +131,7 @@ class HistoricalOHLCVImportService:
                 print(
                     f"Skipped row: {e}"
                 )
-
+        
         if records:
 
             repository.bulk_insert(

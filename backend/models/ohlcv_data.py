@@ -28,3 +28,13 @@ class OHLCVData(Base):
     close: Mapped[float] = mapped_column(Float)
 
     volume: Mapped[int] = mapped_column(BigInteger)
+    
+    dividend: Mapped[float] = mapped_column(
+        Float,
+        default=0.0
+    )
+
+    stock_split: Mapped[float] = mapped_column(
+        Float,
+        default=0.0
+    )
