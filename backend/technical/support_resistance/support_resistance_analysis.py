@@ -40,7 +40,7 @@ def analyze_support_resistance(
 
     pivots = detect_pivots(
         df,
-        window=1
+        window=5
     )
 
     clustered_levels = cluster_levels(pivots)

@@ -46,7 +46,7 @@ class SupportResistanceService:
                 .get_latest_by_symbol_and_timeframe(
                     symbol=symbol,
                     timeframe=timeframe,
-                    limit=200
+                    limit=3000
                 )
             )
 

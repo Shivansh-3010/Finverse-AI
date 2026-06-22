@@ -7,7 +7,7 @@ from technical.support_resistance.models import PivotPoint
 
 def detect_pivots(
     df: pd.DataFrame,
-    window: int = 3
+    window: int = 5
 ) -> List[PivotPoint]:
     """
     Detect swing highs and swing lows.
