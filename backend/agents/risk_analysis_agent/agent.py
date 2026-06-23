@@ -69,7 +69,9 @@ class RiskAnalysisAgent:
                 RiskExplainability.explain(
                     volatility=annualized_volatility,
                     drawdown=drawdown,
-                    risk_score=risk_score
+                    risk_score=risk_score,
+                    var_95=var_95,
+                    expected_shortfall=expected_shortfall,
                 )
             )
         }
