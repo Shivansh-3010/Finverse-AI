@@ -15,6 +15,15 @@ from data.ingestion.multi_timeframe_ingestor import (
     MultiTimeframeIngestor,
 )
 from constants.symbols import SYMBOLS
+from database.session import SessionLocal
+
+from services.historical_indicator_backfill_service import (
+    HistoricalIndicatorBackfillService,
+)
+
+from services.historical_candlestick_backfill_service import (
+    HistoricalCandlestickBackfillService,
+)
 
 
 scheduler = BackgroundScheduler()
@@ -34,9 +43,72 @@ def ingest_market_data():
             f"Ingesting {symbol}"
         )
 
-        ingestor.ingest_and_store(
-            symbol
+        inserted_rows = (
+            ingestor.ingest_and_store(
+                symbol
+            )
         )
+
+        print(
+            f"{symbol}: "
+            f"{inserted_rows} new rows"
+        )
+
+        if inserted_rows <= 0:
+            continue
+
+        clean_symbol = (
+            symbol.replace(
+                ".NS",
+                ""
+            )
+        )
+
+        db = SessionLocal()
+
+        try:
+
+            print(
+                f"Updating indicators for "
+                f"{clean_symbol}"
+            )
+
+            indicator_result = (
+                HistoricalIndicatorBackfillService
+                .backfill_symbol(
+                    db=db,
+                    symbol=clean_symbol,
+                    timeframe="1d",
+                )
+            )
+
+            print(
+                "Indicators:",
+                indicator_result
+            )
+
+            print(
+                f"Updating candlestick patterns for "
+                f"{clean_symbol}"
+            )
+
+            pattern_result = (
+                HistoricalCandlestickBackfillService
+                .backfill_symbol(
+                    db=db,
+                    symbol=clean_symbol,
+                    timeframe="1d",
+                )
+            )
+
+            print(
+                "Patterns:",
+                pattern_result
+            )
+
+        finally:
+
+            db.close()
 
 
 def start_scheduler():
