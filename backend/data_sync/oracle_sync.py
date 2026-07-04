@@ -170,6 +170,21 @@ def bulk_insert(
 
     return inserted
 
+def mark_rows_synced(
+            cursor,
+            oracle_symbol,
+            timeframe
+        ):
+            cursor.execute("""
+                UPDATE ohlcv_data
+                SET synced = 1
+                WHERE symbol = ?
+                AND timeframe = ?
+            """, (
+                oracle_symbol,
+                timeframe
+            ))
+
 
 def main():
 
@@ -221,6 +236,14 @@ def main():
                     db,
                     rows
                 )
+                
+                mark_rows_synced(
+                    cursor,
+                    oracle_symbol,
+                    timeframe
+                )
+
+                sqlite_conn.commit()
 
                 total_inserted += inserted
                 processed_pairs += 1
@@ -261,4 +284,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  
