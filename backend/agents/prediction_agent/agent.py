@@ -2,6 +2,12 @@ from typing import Dict
 
 import pandas as pd
 
+import time
+
+from metrics.monitoring_metrics import (
+    MonitoringMetrics,
+)
+
 from database.session import SessionLocal
 
 from forecasting.feature_builder import (
@@ -36,6 +42,14 @@ from forecasting.horizons import (
     SUPPORTED_HORIZONS,
 )
 
+from repositories.prediction_repository import (
+    PredictionRepository,
+)
+
+from forecasting.model_drift_engine import (
+    ModelDriftEngine,
+)
+
 
 class PredictionAgent:
 
@@ -47,6 +61,8 @@ class PredictionAgent:
     ) -> Dict:
 
         db = SessionLocal()
+        
+        start_time = time.perf_counter()
         
         if horizon not in SUPPORTED_HORIZONS:
 
@@ -88,6 +104,21 @@ class PredictionAgent:
                 .get_history(
                     symbol,
                     timeframe
+                )
+            )
+            
+            prediction_history = (
+                PredictionRepository(db)
+                .get_history(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    horizon=horizon,
+                )
+            )
+
+            MonitoringMetrics.prediction_model_drift = (
+                ModelDriftEngine.calculate(
+                    prediction_history
                 )
             )
 
@@ -147,6 +178,14 @@ class PredictionAgent:
                             "prophet_return_pct"
                         ],
                 )
+            )
+            
+            latency_ms = (
+                time.perf_counter() - start_time
+            ) * 1000
+
+            MonitoringMetrics.prediction_inference_latency_ms = (
+                round(latency_ms, 2)
             )
 
             return {

@@ -190,7 +190,7 @@ def start_scheduler():
     scheduler.add_job(
         collect_news,
         trigger="interval",
-        minutes=8,
+        minutes=60,
         id="news_collection",
         replace_existing=True,
     )

@@ -99,8 +99,23 @@ class DatasetBuilder:
             bb["lower_band"]
         )
         
-        if candlestick_features is not None:
+        if (
+            candlestick_features is not None
+            and not candlestick_features.empty
+        ):
 
+            candlestick_features = (
+                candlestick_features
+                .groupby("timestamp", as_index=False)
+                .agg(
+                    {
+                        "strength": "mean",
+                        "confidence": "mean",
+                        "candlestick_score": "mean",
+                    }
+                )
+            )
+            
             dataset = dataset.merge(
                 candlestick_features,
                 on="timestamp",

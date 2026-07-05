@@ -53,3 +53,32 @@ class EvaluationMetricsEngine:
             )
             / len(evaluations)
         ) * 100
+        
+    @staticmethod
+    def mape(evaluations):
+
+        if not evaluations:
+            return 0.0
+
+        valid = [
+            e
+            for e in evaluations
+            if e.actual_return != 0
+        ]
+
+        if not valid:
+            return 0.0
+
+        return (
+            sum(
+                abs(
+                    (
+                        e.actual_return
+                        - e.predicted_return
+                    )
+                    / abs(e.actual_return)
+                )
+                for e in valid
+            )
+            / len(valid)
+        ) * 100

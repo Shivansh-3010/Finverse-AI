@@ -9,6 +9,17 @@ from repositories.ohlcv_repository import (
 from services.prediction_evaluation_persistence_service import (
     PredictionEvaluationPersistenceService,
 )
+from repositories.prediction_evaluation_repository import (
+    PredictionEvaluationRepository,
+)
+
+from forecasting.evaluation_metrics_engine import (
+    EvaluationMetricsEngine,
+)
+
+from metrics.monitoring_metrics import (
+    MonitoringMetrics,
+)
 
 
 class EvaluationEngine:
@@ -60,7 +71,7 @@ class EvaluationEngine:
             previous_close
         ) * 100
 
-        return (
+        saved = (
             PredictionEvaluationPersistenceService
             .save_evaluation(
                 symbol=symbol,
@@ -73,3 +84,35 @@ class EvaluationEngine:
                     actual_return,
             )
         )
+
+        evaluations = (
+            PredictionEvaluationRepository(db)
+            .get_history(
+                symbol,
+                timeframe
+            )
+        )
+
+        MonitoringMetrics.update_prediction_metrics(
+            mae=
+                EvaluationMetricsEngine.mae(
+                    evaluations
+                ),
+
+            rmse=
+                EvaluationMetricsEngine.rmse(
+                    evaluations
+                ),
+
+            mape=
+                EvaluationMetricsEngine.mape(
+                    evaluations
+                ),
+
+            directional_accuracy=
+                EvaluationMetricsEngine.directional_accuracy(
+                    evaluations
+                ),
+        )
+
+        return saved

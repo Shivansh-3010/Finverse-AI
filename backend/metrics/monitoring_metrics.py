@@ -8,6 +8,18 @@ class MonitoringMetrics:
 
     copilot_requests = 0
 
+    prediction_mae = 0.0
+
+    prediction_rmse = 0.0
+
+    prediction_mape = 0.0
+
+    prediction_directional_accuracy = 0.0
+
+    prediction_inference_latency_ms = 0.0
+
+    prediction_model_drift = 0.0
+
     @classmethod
     def increment_articles_processed(
         cls
@@ -33,6 +45,30 @@ class MonitoringMetrics:
         cls.copilot_requests += 1
 
     @classmethod
+    def update_prediction_metrics(
+        cls,
+        mae: float,
+        rmse: float,
+        mape: float,
+        directional_accuracy: float,
+        inference_latency_ms: float = 0.0,
+        model_drift: float = 0.0,
+    ):
+
+        cls.prediction_mae = mae
+        cls.prediction_rmse = rmse
+        cls.prediction_mape = mape
+        cls.prediction_directional_accuracy = (
+            directional_accuracy
+        )
+        cls.prediction_inference_latency_ms = (
+            inference_latency_ms
+        )
+        cls.prediction_model_drift = (
+            model_drift
+        )
+
+    @classmethod
     def get_metrics(
         cls
     ):
@@ -50,4 +86,22 @@ class MonitoringMetrics:
 
             "copilot_requests":
                 cls.copilot_requests,
+
+            "prediction_mae":
+                cls.prediction_mae,
+
+            "prediction_rmse":
+                cls.prediction_rmse,
+
+            "prediction_mape":
+                cls.prediction_mape,
+
+            "prediction_directional_accuracy":
+                cls.prediction_directional_accuracy,
+
+            "prediction_inference_latency_ms":
+                cls.prediction_inference_latency_ms,
+
+            "prediction_model_drift":
+                cls.prediction_model_drift,
         }

@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from backend.constants import symbols
+
 PROJECT_ROOT = (
     Path(__file__)
     .resolve()
@@ -51,6 +53,7 @@ from forecasting.horizons import (
 )
 
 def train(
+    symbol: str = "RELIANCE",
     horizon: str = "1d",
 ):
     if horizon not in HORIZON_DAYS:
@@ -66,7 +69,7 @@ def train(
         records = (
             OHLCVRepository(db)
             .get_history_by_symbol_and_timeframe(
-                symbol="RELIANCE",
+                symbol=symbol,
                 timeframe="1d"
             )
         )
@@ -74,15 +77,15 @@ def train(
         patterns = (
             CandlestickPatternRepository(db)
             .get_history_by_timeframe(
-                "RELIANCE",
-                "1d"
+                symbol=symbol,
+                timeframe="1d",
             )
         )
         
         news_articles = (
             NewsArticleRepository(db)
             .get_history(
-                "RELIANCE"
+                symbol=symbol,
             )
         )
 
@@ -212,12 +215,12 @@ def train(
 
         joblib.dump(
             model,
-            f"models/xgboost/reliance_xgb_{horizon}.pkl"
+            f"models/xgboost/{symbol.lower()}_xgb_{horizon}.pkl"
         )
 
         joblib.dump(
             list(X.columns),
-            f"models/xgboost/reliance_xgb_features_{horizon}.pkl"
+            f"models/xgboost/{symbol.lower()}_xgb_features_{horizon}.pkl"
         )
 
         predictions = model.predict(
@@ -244,6 +247,11 @@ def train(
                 y_test.values,
                 predictions
             )
+        )
+        
+        print(
+            "Symbol:",
+            symbol
         )
         
         print(
