@@ -10,6 +10,10 @@ class AliasGenerator:
         "ltd.",
     }
     
+    BLACKLISTED_ALIASES = {
+        "TAKE",
+    }
+    
     GENERIC_FIRST_WORDS = {
         "state",
         "indian",
@@ -130,14 +134,14 @@ class AliasGenerator:
             aliases.add(cleaned_name)
 
             # First word
-            first_word = cleaned_words[0]
+            #first_word = cleaned_words[0]
 
-            if (
-                len(first_word) >= 4
-                and not any(char.isdigit() for char in first_word)
-                and first_word.lower() not in cls.GENERIC_FIRST_WORDS
-            ):
-                aliases.add(first_word)
+            #if (
+            #    len(first_word) >= 4
+            #    and not any(char.isdigit() for char in first_word)
+            #    and first_word.lower() not in cls.GENERIC_FIRST_WORDS
+            #):
+            #    aliases.add(first_word)
 
         # Manual aliases
         manual_aliases = cls.MANUAL_ALIASES.get(
@@ -147,6 +151,13 @@ class AliasGenerator:
 
         for alias in manual_aliases:
             aliases.add(alias)
+            
+        # Remove blacklisted aliases
+        aliases = {
+            alias
+            for alias in aliases
+            if alias.upper() not in cls.BLACKLISTED_ALIASES
+        }
 
         # Remove empty values
         aliases = {
