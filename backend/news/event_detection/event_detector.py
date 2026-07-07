@@ -1,3 +1,5 @@
+import re
+
 class EventDetector:
 
     EVENT_PATTERNS = {
@@ -243,7 +245,9 @@ class EventDetector:
 
             for keyword in keywords:
 
-                if keyword in content:
+                pattern = rf"\b{re.escape(keyword)}\b"
+
+                if re.search(pattern, content):
 
                     detected_events.add(
                         event_type
