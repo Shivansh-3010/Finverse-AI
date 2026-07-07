@@ -63,8 +63,9 @@ class NewsPersistenceService:
                         "provider_article_id",
                         ""
                     ),
-                published_at=datetime.now(
-                    timezone.utc
+                published_at=article_data.get(
+                    "published_at",
+                    datetime.now(timezone.utc)
                 ),
                 sentiment=article_data[
                     "sentiment"

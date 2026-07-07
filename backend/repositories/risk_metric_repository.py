@@ -70,3 +70,34 @@ class RiskMetricRepository:
             )
             .all()
         )
+        
+    def bulk_insert(
+        self,
+        metrics: list[RiskMetric]
+    ):
+
+        self.db.bulk_save_objects(
+            metrics
+        )
+
+        self.db.commit()
+        
+    def exists(
+        self,
+        symbol: str,
+        timeframe: str,
+        timestamp,
+    ):
+
+        return (
+            self.db.query(
+                RiskMetric
+            )
+            .filter(
+                RiskMetric.symbol == symbol,
+                RiskMetric.timeframe == timeframe,
+                RiskMetric.timestamp == timestamp,
+            )
+            .first()
+            is not None
+        )

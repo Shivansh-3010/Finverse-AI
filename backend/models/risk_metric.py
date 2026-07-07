@@ -24,19 +24,35 @@ class RiskMetric(Base):
         primary_key=True
     )
 
-    volatility: Mapped[float] = mapped_column(
+    volatility_252d: Mapped[float] = mapped_column(
         Float
     )
 
-    drawdown: Mapped[float] = mapped_column(
+    volatility_504d: Mapped[float] = mapped_column(
         Float
     )
 
-    var_95: Mapped[float] = mapped_column(
+    drawdown_252d: Mapped[float] = mapped_column(
         Float
     )
 
-    expected_shortfall: Mapped[float] = mapped_column(
+    drawdown_504d: Mapped[float] = mapped_column(
+        Float
+    )
+
+    var95_252d: Mapped[float] = mapped_column(
+        Float
+    )
+
+    var95_504d: Mapped[float] = mapped_column(
+        Float
+    )
+
+    expected_shortfall_252d: Mapped[float] = mapped_column(
+        Float
+    )
+
+    expected_shortfall_504d: Mapped[float] = mapped_column(
         Float
     )
 

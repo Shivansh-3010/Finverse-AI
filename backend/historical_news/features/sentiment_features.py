@@ -50,6 +50,39 @@ class SentimentFeatureBuilder:
         avg_confidence = float(
             group["confidence"].mean()
         )
+        
+        positive_confidence_mean = (
+            float(
+                group.loc[
+                    group["sentiment"] == "positive",
+                    "confidence",
+                ].mean()
+            )
+            if positive_count > 0
+            else 0.0
+        )
+
+        negative_confidence_mean = (
+            float(
+                group.loc[
+                    group["sentiment"] == "negative",
+                    "confidence",
+                ].mean()
+            )
+            if negative_count > 0
+            else 0.0
+        )
+
+        neutral_confidence_mean = (
+            float(
+                group.loc[
+                    group["sentiment"] == "neutral",
+                    "confidence",
+                ].mean()
+            )
+            if neutral_count > 0
+            else 0.0
+        )
 
         sentiment_score = float(
             group["sentiment"]
@@ -71,5 +104,13 @@ class SentimentFeatureBuilder:
             "positive_ratio": positive_ratio,
             "negative_ratio": negative_ratio,
             "avg_confidence": avg_confidence,
+            "positive_confidence_mean":
+                positive_confidence_mean,
+
+            "negative_confidence_mean":
+                negative_confidence_mean,
+
+            "neutral_confidence_mean":
+                neutral_confidence_mean,
             "sentiment_score": sentiment_score,
         }
