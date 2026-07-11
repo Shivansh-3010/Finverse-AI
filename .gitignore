@@ -50,3 +50,11 @@ __pycache__/
 
 # ChromaDB local vector storage
 database/chromadb/
+
+# Historical datasets
+datasets/company_master/
+datasets/historical_news/*.csv
+datasets/historical_news_processed/
+
+# Generated company news datasets
+datasets/company_news/
