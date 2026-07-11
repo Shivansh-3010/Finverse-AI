@@ -33,6 +33,46 @@ class SupportResistance(Base):
         Float,
         nullable=True
     )
+    
+    distance_to_support_pct: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    distance_to_resistance_pct: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    support_strength: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    resistance_strength: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    breakout_zone_lower: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    breakout_zone_upper: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    breakdown_zone_lower: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    breakdown_zone_upper: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
 
     signal_level: Mapped[float | None] = mapped_column(
         Float,
@@ -41,5 +81,25 @@ class SupportResistance(Base):
 
     signal: Mapped[str | None] = mapped_column(
         String(20),
+        nullable=True
+    )
+    
+    distance_to_support_pct: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    distance_to_resistance_pct: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    support_strength: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True
+    )
+
+    resistance_strength: Mapped[float | None] = mapped_column(
+        Float,
         nullable=True
     )

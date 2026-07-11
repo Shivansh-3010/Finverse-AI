@@ -63,3 +63,14 @@ class SupportResistanceRepository:
         self.db.refresh(saved_record)
 
         return saved_record
+    
+    def bulk_insert(
+        self,
+        records: list,
+    ):
+
+        self.db.bulk_save_objects(
+            records
+        )
+
+        self.db.commit()

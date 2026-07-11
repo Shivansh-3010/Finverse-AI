@@ -28,11 +28,24 @@ class LevelStrength:
     
 @dataclass
 class SupportResistanceAnalysis:
+
     supports: list
     resistances: list
 
     nearest_support: float | None
     nearest_resistance: float | None
+
+    support_strength: float | None = None
+    resistance_strength: float | None = None
+
+    distance_to_support_pct: float | None = None
+    distance_to_resistance_pct: float | None = None
+
+    breakout_zone_lower: float | None = None
+    breakout_zone_upper: float | None = None
+
+    breakdown_zone_lower: float | None = None
+    breakdown_zone_upper: float | None = None
 
     signal: str | None = None
     signal_level: float | None = None
