@@ -15,6 +15,10 @@ from repositories.risk_metric_repository import (
     RiskMetricRepository,
 )
 
+from repositories.support_resistance_repository import (
+    SupportResistanceRepository,
+)
+
 
 class FeatureBuilder:
 
@@ -55,6 +59,30 @@ class FeatureBuilder:
                 timeframe
             )
         )
+        
+        support_resistance = (
+            SupportResistanceRepository(db)
+            .get_latest_by_timeframe(
+                symbol,
+                timeframe
+            )
+        )
+        
+        signal_map = {
+            "support": 1.0,
+            "resistance": -1.0,
+            "breakout": 2.0,
+            "breakdown": -2.0,
+        }
+
+        signal_value = signal_map.get(
+            getattr(
+                support_resistance,
+                "signal",
+                None,
+            ),
+            0.0,
+        )
 
         features = [
             getattr(technical, "rsi", 0.0),
@@ -80,6 +108,108 @@ class FeatureBuilder:
             news["positive_count"],
             news["negative_count"],
             news["neutral_count"],
+            
+            # Risk Features
+
+            getattr(
+                risk,
+                "volatility_252d",
+                0.0,
+            ),
+
+            getattr(
+                risk,
+                "drawdown_252d",
+                0.0,
+            ),
+
+            getattr(
+                risk,
+                "var95_252d",
+                0.0,
+            ),
+
+            getattr(
+                risk,
+                "expected_shortfall_252d",
+                0.0,
+            ),
+
+            getattr(
+                risk,
+                "risk_score",
+                0.0,
+            ),
+            
+            # Support & Resistance Features
+
+            getattr(
+                support_resistance,
+                "nearest_support",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "nearest_resistance",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "support_strength",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "resistance_strength",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "distance_to_support_pct",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "distance_to_resistance_pct",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "breakout_zone_lower",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "breakout_zone_upper",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "breakdown_zone_lower",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "breakdown_zone_upper",
+                0.0,
+            ),
+
+            getattr(
+                support_resistance,
+                "signal_level",
+                0.0,
+            ),
+
+            signal_value,
         ]
 
         return [

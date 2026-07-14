@@ -133,7 +133,7 @@ class UniversalXGBoostTrainer:
 
                     news_articles = (
                         NewsArticleRepository(db)
-                        .get_history(symbol)
+                        .get_training_history(symbol)
                     )
 
                     news_features = (

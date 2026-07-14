@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-from backend.constants import symbols
-
 PROJECT_ROOT = (
     Path(__file__)
     .resolve()
@@ -45,6 +43,14 @@ from repositories.news_article_repository import (
     NewsArticleRepository,
 )
 
+from repositories.risk_metric_repository import (
+    RiskMetricRepository,
+)
+
+from repositories.support_resistance_repository import (
+    SupportResistanceRepository,
+)
+
 from forecasting.news_feature_builder import (
     NewsFeatureBuilder,
 )
@@ -84,10 +90,33 @@ def train(
         
         news_articles = (
             NewsArticleRepository(db)
-            .get_history(
+            .get_training_history(
                 symbol=symbol,
             )
         )
+        
+        risk_history = (
+            RiskMetricRepository(db)
+            .get_history(
+                symbol=symbol,
+                timeframe="1d",
+            )
+        )
+
+        sr_history = (
+            SupportResistanceRepository(db)
+            .get_history_by_timeframe(
+                symbol=symbol,
+                timeframe="1d",
+            )
+        )
+        
+        print("\nSR HISTORY COUNT")
+        print(len(sr_history))
+
+        if len(sr_history) > 0:
+            print("\nFIRST SR RECORD")
+            print(sr_history[0])
 
         news_features = (
             NewsFeatureBuilder.build(
@@ -108,6 +137,47 @@ def train(
             }
             for p in patterns
         ])
+        
+        risk_df = pd.DataFrame([
+            {
+                "timestamp": r.timestamp,
+                "volatility_252d": r.volatility_252d,
+                "drawdown_252d": r.drawdown_252d,
+                "var95_252d": r.var95_252d,
+                "expected_shortfall_252d": r.expected_shortfall_252d,
+                "risk_score": r.risk_score,
+            }
+            for r in risk_history
+        ])
+
+        signal_map = {
+            "support": 1.0,
+            "resistance": -1.0,
+            "breakout": 2.0,
+            "breakdown": -2.0,
+        }
+
+        sr_df = pd.DataFrame([
+            {
+                "timestamp": s.timestamp,
+                "nearest_support": s.nearest_support,
+                "nearest_resistance": s.nearest_resistance,
+                "support_strength": s.support_strength,
+                "resistance_strength": s.resistance_strength,
+                "distance_to_support_pct": s.distance_to_support_pct,
+                "distance_to_resistance_pct": s.distance_to_resistance_pct,
+                "breakout_zone_lower": s.breakout_zone_lower,
+                "breakout_zone_upper": s.breakout_zone_upper,
+                "breakdown_zone_lower": s.breakdown_zone_lower,
+                "breakdown_zone_upper": s.breakdown_zone_upper,
+                "signal_level": s.signal_level,
+                "signal_value": signal_map.get(
+                    s.signal,
+                    0.0,
+                ),
+            }
+            for s in sr_history
+        ])
 
         dataset = DatasetBuilder.build(
             df,
@@ -115,6 +185,22 @@ def train(
             horizon_days=
                 HORIZON_DAYS[horizon],
         )
+        
+        if not risk_df.empty:
+
+            dataset = dataset.merge(
+                risk_df,
+                on="timestamp",
+                how="left",
+            )
+
+        if not sr_df.empty:
+
+            dataset = dataset.merge(
+                sr_df,
+                on="timestamp",
+                how="left",
+            )
         
         if not news_features.empty:
 
@@ -127,19 +213,6 @@ def train(
                 news_features,
                 on="date",
                 how="left"
-            )
-            
-            print(
-                dataset[
-                    [
-                        "date",
-                        "avg_news_score",
-                        "article_count",
-                        "positive_count",
-                        "negative_count",
-                    ]
-                ]
-                .tail(20)
             )
 
             dataset[
@@ -159,9 +232,114 @@ def train(
                 ]
                 .fillna(0)
             )
+            
+        risk_columns = [
+            "volatility_252d",
+            "drawdown_252d",
+            "var95_252d",
+            "expected_shortfall_252d",
+            "risk_score",
+        ]
+
+        sr_columns = [
+            "nearest_support",
+            "nearest_resistance",
+            "support_strength",
+            "resistance_strength",
+            "distance_to_support_pct",
+            "distance_to_resistance_pct",
+            "breakout_zone_lower",
+            "breakout_zone_upper",
+            "breakdown_zone_lower",
+            "breakdown_zone_upper",
+            "signal_level",
+            "signal_value",
+        ]
+        
+        # Fill missing values
+
+        for column in risk_columns + sr_columns:
+
+            if column in dataset.columns:
+                dataset[column] = (
+                    dataset[column]
+                    .fillna(0.0)
+                )
+
+        # --------------------------------------------------
+        # DATA COVERAGE SUMMARY
+        # --------------------------------------------------
+
+        print("\n" + "=" * 60)
+        print("FEATURE COVERAGE SUMMARY")
+        print("=" * 60)
+
+        columns_to_check = [
+            "avg_news_score",
+            "article_count",
+            "nearest_support",
+            "nearest_resistance",
+            "signal_value",
+        ]
+
+        for col in columns_to_check:
+
+            if col not in dataset.columns:
+                continue
+
+            non_zero = (
+                dataset[col]
+                .fillna(0)
+                .ne(0)
+                .sum()
+            )
+
+            print(
+                f"{col}: "
+                f"{non_zero}/{len(dataset)} "
+                f"({100 * non_zero / len(dataset):.2f}%)"
+            )
+
+        print("\nSUPPORT RESISTANCE SUMMARY")
+
+        sr_summary_columns = [
+            "nearest_support",
+            "nearest_resistance",
+            "support_strength",
+            "resistance_strength",
+            "signal_value",
+        ]
+
+        existing_cols = [
+            c for c in sr_summary_columns
+            if c in dataset.columns
+        ]
+
+        print(
+            dataset[existing_cols]
+            .describe()
+        )
+
+        print("\nSAMPLE SR ROWS")
+
+        print(
+            dataset[
+                [
+                    "timestamp",
+                    "nearest_support",
+                    "nearest_resistance",
+                    "support_strength",
+                    "resistance_strength",
+                    "signal_value",
+                ]
+            ]
+            .tail(10)
+        )
 
         X = dataset[
             [
+                # Technical
+
                 "rsi",
                 "macd",
                 "macd_signal",
@@ -173,9 +351,15 @@ def train(
                 "bb_upper",
                 "bb_middle",
                 "bb_lower",
+
+                # Candlestick
+
                 "strength",
                 "confidence",
                 "candlestick_score",
+
+                # News
+
                 "avg_news_score",
                 "avg_news_confidence",
                 "article_count",
@@ -183,8 +367,76 @@ def train(
                 "positive_count",
                 "negative_count",
                 "neutral_count",
+
+                # Risk
+
+                "volatility_252d",
+                "drawdown_252d",
+                "var95_252d",
+                "expected_shortfall_252d",
+                "risk_score",
+
+                # Support & Resistance
+
+                "nearest_support",
+                "nearest_resistance",
+                "support_strength",
+                "resistance_strength",
+                "distance_to_support_pct",
+                "distance_to_resistance_pct",
+                "breakout_zone_lower",
+                "breakout_zone_upper",
+                "breakdown_zone_lower",
+                "breakdown_zone_upper",
+                "signal_level",
+                "signal_value",
             ]
         ]
+        
+        X = X.apply(
+            pd.to_numeric,
+            errors="coerce",
+        )
+
+        X = X.fillna(0.0)
+
+        print("\nX dtypes after conversion:\n")
+        print(X.dtypes)
+
+        print(
+            "\nRemaining non-numeric columns:",
+            list(
+                X.select_dtypes(
+                    exclude=["number", "bool"]
+                ).columns
+            )
+        )
+        
+        sr_numeric_columns = [
+            "support_strength",
+            "resistance_strength",
+            "distance_to_support_pct",
+            "distance_to_resistance_pct",
+            "breakout_zone_lower",
+            "breakout_zone_upper",
+            "breakdown_zone_lower",
+            "breakdown_zone_upper",
+            "signal_level",
+        ]
+
+        for column in sr_numeric_columns:
+
+            dataset[column] = pd.to_numeric(
+                dataset[column],
+                errors="coerce",
+            ).fillna(0.0)
+            
+        print("\nX dtypes:\n")
+        print(X.dtypes)
+
+        bad_cols = X.select_dtypes(exclude=["number", "bool"]).columns
+        print("\nNon-numeric columns:")
+        print(list(bad_cols))
 
         y = dataset["target"]
 

@@ -192,7 +192,7 @@ def analyze_candlestick(records):
             "patterns": []
         }
 
-    latest = valid_records[0]
+    latest = valid_records[-1]
 
     open_price = float(latest.open)
     high_price = float(latest.high)
@@ -563,7 +563,7 @@ def analyze_candlestick(records):
     
     if len(valid_records) >= 2:
 
-        previous = valid_records[1]
+        previous = valid_records[-2]
 
         if detect_bullish_engulfing(
             prev_open=float(previous.open),
@@ -937,9 +937,9 @@ def analyze_candlestick(records):
             
     if len(valid_records) >= 3:
 
-        third = valid_records[0]
-        second = valid_records[1]
-        first = valid_records[2]
+        first = valid_records[-3]
+        second = valid_records[-2]
+        third = valid_records[-1]
 
         if detect_morning_star(
             first_open=float(first.open),
@@ -1263,11 +1263,11 @@ def analyze_candlestick(records):
     
     if len(valid_records) >= 5:
 
-        first = valid_records[4]
-        second = valid_records[3]
-        third = valid_records[2]
-        fourth = valid_records[1]
-        fifth = valid_records[0]
+        first = valid_records[-5]
+        second = valid_records[-4]
+        third = valid_records[-3]
+        fourth = valid_records[-2]
+        fifth = valid_records[-1]
         
         if detect_rising_three_methods(
             first_open=float(fifth.open),

@@ -244,3 +244,24 @@ class NewsArticleRepository:
             .first()
             is not None
         )
+        
+    def get_training_history(
+        self,
+        symbol: str
+    ):
+        return (
+            self.db.query(NewsArticle)
+            .filter(
+                (
+                    NewsArticle.symbol == symbol
+                )
+                |
+                (
+                    NewsArticle.symbol == "MARKET"
+                )
+            )
+            .order_by(
+                NewsArticle.published_at
+            )
+            .all()
+        )

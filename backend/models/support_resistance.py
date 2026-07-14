@@ -83,23 +83,3 @@ class SupportResistance(Base):
         String(20),
         nullable=True
     )
-    
-    distance_to_support_pct: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True
-    )
-
-    distance_to_resistance_pct: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True
-    )
-
-    support_strength: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True
-    )
-
-    resistance_strength: Mapped[float | None] = mapped_column(
-        Float,
-        nullable=True
-    )
