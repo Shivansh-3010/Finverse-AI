@@ -145,6 +145,11 @@ class DatasetBuilder:
             )
             / dataset["close"]
         ) * 100
+        
+        dataset["target"] = (
+            dataset["target"]
+            .clip(-20, 20)
+        )
 
         dataset = dataset.dropna()
 
