@@ -110,13 +110,6 @@ def train(
                 timeframe="1d",
             )
         )
-        
-        print("\nSR HISTORY COUNT")
-        print(len(sr_history))
-
-        if len(sr_history) > 0:
-            print("\nFIRST SR RECORD")
-            print(sr_history[0])
 
         news_features = (
             NewsFeatureBuilder.build(
@@ -300,42 +293,6 @@ def train(
                 f"({100 * non_zero / len(dataset):.2f}%)"
             )
 
-        print("\nSUPPORT RESISTANCE SUMMARY")
-
-        sr_summary_columns = [
-            "nearest_support",
-            "nearest_resistance",
-            "support_strength",
-            "resistance_strength",
-            "signal_value",
-        ]
-
-        existing_cols = [
-            c for c in sr_summary_columns
-            if c in dataset.columns
-        ]
-
-        print(
-            dataset[existing_cols]
-            .describe()
-        )
-
-        print("\nSAMPLE SR ROWS")
-
-        print(
-            dataset[
-                [
-                    "timestamp",
-                    "nearest_support",
-                    "nearest_resistance",
-                    "support_strength",
-                    "resistance_strength",
-                    "signal_value",
-                ]
-            ]
-            .tail(10)
-        )
-
         X = dataset[
             [
                 # Technical
@@ -399,18 +356,6 @@ def train(
         )
 
         X = X.fillna(0.0)
-
-        print("\nX dtypes after conversion:\n")
-        print(X.dtypes)
-
-        print(
-            "\nRemaining non-numeric columns:",
-            list(
-                X.select_dtypes(
-                    exclude=["number", "bool"]
-                ).columns
-            )
-        )
         
         sr_numeric_columns = [
             "support_strength",
@@ -430,13 +375,6 @@ def train(
                 dataset[column],
                 errors="coerce",
             ).fillna(0.0)
-            
-        print("\nX dtypes:\n")
-        print(X.dtypes)
-
-        bad_cols = X.select_dtypes(exclude=["number", "bool"]).columns
-        print("\nNon-numeric columns:")
-        print(list(bad_cols))
 
         y = dataset["target"]
 
@@ -561,6 +499,17 @@ def train(
             print(
                 f"{feature}: {score:.4f}"
             )
+            
+        return {
+            "symbol": symbol,
+            "horizon": horizon,
+            "mae": float(mae),
+            "rmse": float(rmse),
+            "mape": float(mape),
+            "directional_accuracy": float(
+                directional_accuracy
+            ),
+        }
 
     finally:
         db.close()

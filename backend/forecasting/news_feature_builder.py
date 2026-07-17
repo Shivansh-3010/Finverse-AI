@@ -128,6 +128,11 @@ class NewsFeatureBuilder:
 
         grouped["recent_article_count"] = (
             grouped["article_count"]
+            .rolling(
+                window=5,
+                min_periods=1
+            )
+            .sum()
         )
 
         return grouped

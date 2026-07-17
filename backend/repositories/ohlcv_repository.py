@@ -161,3 +161,23 @@ class OHLCVRepository:
         self.db.commit()
 
         return True
+    
+    def get_all_symbols(
+        self,
+        timeframe: str = "1d",
+    ):
+        rows = (
+            self.db.query(
+                OHLCVData.symbol
+            )
+            .filter(
+                OHLCVData.timeframe == timeframe
+            )
+            .distinct()
+            .all()
+        )
+
+        return [
+            row[0]
+            for row in rows
+        ]
