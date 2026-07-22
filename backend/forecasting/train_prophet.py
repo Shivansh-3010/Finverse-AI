@@ -47,9 +47,17 @@ def train(
     )
 
     # Keep only rows where all required features exist
-    prophet_df = prophet_df.dropna()
+    prophet_df = prophet_df.dropna(
+        subset=["ds", "y"]
+    )
 
     model = ProphetEngine.build_model()
+    
+    print("\n=== Prophet Training Data ===")
+    print(prophet_df[["ds", "y"]].tail())
+    print(f"Rows: {len(prophet_df)}")
+    print(f"Min date: {prophet_df['ds'].min()}")
+    print(f"Max date: {prophet_df['ds'].max()}")
 
     model.fit(prophet_df)
 
