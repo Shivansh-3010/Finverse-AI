@@ -26,18 +26,16 @@ def train(
         symbol=symbol,
         horizon=horizon,
     )
+    
+    print(dataset[["timestamp", "close", "target"]].tail(10))
 
     prophet_df = (
-        dataset[
-            ["timestamp", "target"]
-        ]
-        .rename(
+        dataset.rename(
             columns={
                 "timestamp": "ds",
                 "target": "y",
             }
         )
-        .dropna()
     )
 
     # Prophet requires timezone-naive datetimes
@@ -47,6 +45,9 @@ def train(
         )
         .dt.tz_localize(None)
     )
+
+    # Keep only rows where all required features exist
+    prophet_df = prophet_df.dropna()
 
     model = ProphetEngine.build_model()
 
