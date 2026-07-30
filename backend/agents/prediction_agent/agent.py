@@ -80,16 +80,18 @@ class PredictionAgent:
 
             feature_names = (
                 ModelLoader.load_features(
-                    horizon=horizon
+                    model_type="xgboost",
+                    horizon=horizon,
                 )
             )
 
             model = (
                 ModelLoader.load_model(
-                    horizon=horizon
+                    model_type="xgboost",
+                    symbol=symbol,
+                    horizon=horizon,
                 )
             )
-
             X = pd.DataFrame(
                 [features],
                 columns=feature_names

@@ -54,6 +54,45 @@ class PredictionRepository:
             )
             .first()
         )
+        
+    def get_latest_predictions(
+        self,
+        symbol: str,
+        timeframe: str = "1d",
+        horizon: str = "1d",
+    ):
+
+        latest_timestamp = (
+            self.db.query(
+                Prediction.timestamp
+            )
+            .filter(
+                Prediction.symbol == symbol,
+                Prediction.timeframe == timeframe,
+                Prediction.horizon == horizon,
+            )
+            .order_by(
+                desc(Prediction.timestamp)
+            )
+            .limit(1)
+            .scalar()
+        )
+
+        if latest_timestamp is None:
+            return []
+
+        return (
+            self.db.query(
+                Prediction
+            )
+            .filter(
+                Prediction.symbol == symbol,
+                Prediction.timeframe == timeframe,
+                Prediction.horizon == horizon,
+                Prediction.timestamp == latest_timestamp,
+            )
+            .all()
+        )
 
     def get_history(
         self,

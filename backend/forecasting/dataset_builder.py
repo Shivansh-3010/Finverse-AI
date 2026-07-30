@@ -44,6 +44,7 @@ class DatasetBuilder:
     def build(
         df: pd.DataFrame,
         candlestick_features=None,
+        news_articles=None,
         horizon_days: int = 1,
     ):
 
@@ -136,6 +137,51 @@ class DatasetBuilder:
                 dataset["candlestick_score"]
                 .fillna(0.0)
             )
+            
+            # Merge historical news features
+            if news_articles:
+
+                news_features = NewsFeatureBuilder.build(
+                    news_articles
+                )
+
+                if not news_features.empty:
+
+                    dataset["date"] = (
+                        pd.to_datetime(
+                            dataset["timestamp"]
+                        ).dt.date
+                    )
+
+                    dataset = dataset.merge(
+                        news_features,
+                        on="date",
+                        how="left",
+                    )
+
+                    news_columns = [
+                        "avg_news_score",
+                        "avg_news_confidence",
+                        "article_count",
+                        "positive_count",
+                        "negative_count",
+                        "neutral_count",
+                        "recent_article_count",
+                    ]
+
+                    for column in news_columns:
+
+                        if column in dataset.columns:
+
+                            dataset[column] = (
+                                dataset[column]
+                                .fillna(0.0)
+                            )
+
+                    dataset.drop(
+                        columns=["date"],
+                        inplace=True,
+                    )
 
         dataset["target"] = (
             (

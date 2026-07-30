@@ -1,7 +1,3 @@
-from repositories.ohlcv_repository import (
-    OHLCVRepository,
-)
-
 from services.model_comparison_service import (
     ModelComparisonService,
 )
@@ -30,18 +26,6 @@ class EnsembleForecastService:
             )
         )
 
-        latest_candle = (
-            OHLCVRepository(db)
-            .get_latest_candle(
-                symbol=symbol,
-                timeframe=timeframe,
-            )
-        )
-
-        current_price = (
-            latest_candle.close
-        )
-
         return (
             EnsembleEngine.combine(
                 xgb_prediction_pct=
@@ -49,9 +33,9 @@ class EnsembleForecastService:
                         "predicted_return_pct"
                     ],
 
-                prophet_forecast_price=
+                prophet_prediction_pct=
                     comparison["prophet"][
-                        "forecast"
+                        "predicted_return_pct"
                     ],
 
                 lstm_prediction_pct=
@@ -63,9 +47,6 @@ class EnsembleForecastService:
                     comparison["transformer"][
                         "predicted_return_pct"
                     ],
-
-                current_price=
-                    current_price,
 
                 confidence=
                     comparison["xgboost"].get(

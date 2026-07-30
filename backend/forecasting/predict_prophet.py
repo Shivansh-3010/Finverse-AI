@@ -7,7 +7,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
 import joblib
-
+import argparse
 
 def predict(
     symbol: str = "RELIANCE",
@@ -47,4 +47,24 @@ def predict(
 
 
 if __name__ == "__main__":
-    print(predict())
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--symbol",
+        default="RELIANCE",
+    )
+
+    parser.add_argument(
+        "--horizon",
+        default="1d",
+    )
+
+    args = parser.parse_args()
+
+    print(
+        predict(
+            symbol=args.symbol,
+            horizon=args.horizon,
+        )
+    )

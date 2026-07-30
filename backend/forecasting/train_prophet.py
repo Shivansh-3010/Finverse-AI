@@ -12,6 +12,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import joblib
 import pandas as pd
+import argparse
 
 from forecasting.prophet_engine import ProphetEngine
 from forecasting.training_pipeline import TrainingPipeline
@@ -88,4 +89,22 @@ def train(
 
 
 if __name__ == "__main__":
-    train()
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "--symbol",
+        default="RELIANCE",
+    )
+
+    parser.add_argument(
+        "--horizon",
+        default="1d",
+    )
+
+    args = parser.parse_args()
+
+    train(
+        symbol=args.symbol,
+        horizon=args.horizon,
+    )

@@ -31,15 +31,15 @@ class EvaluationEngine:
         timeframe: str = "1d"
     ):
 
-        prediction = (
+        predictions = (
             PredictionRepository(db)
-            .get_latest(
-                symbol,
-                timeframe
+            .get_latest_predictions(
+                symbol=symbol,
+                timeframe=timeframe,
             )
         )
 
-        if not prediction:
+        if not predictions:
             return None
 
         candles = (
@@ -71,20 +71,23 @@ class EvaluationEngine:
             previous_close
         ) * 100
 
-        saved = (
-            PredictionEvaluationPersistenceService
-            .save_evaluation(
-                symbol=symbol,
-                timeframe=timeframe,
-                model_name=
-                    prediction.model_name,
-                predicted_return=
-                    prediction.prediction,
-                actual_return=
-                    actual_return,
-            )
-        )
+        saved = []
 
+        for prediction in predictions:
+
+            evaluation = (
+                PredictionEvaluationPersistenceService
+                .save_evaluation(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    model_name=prediction.model_name,
+                    predicted_return=prediction.prediction,
+                    actual_return=actual_return,
+                )
+            )
+
+            saved.append(evaluation)
+        
         evaluations = (
             PredictionEvaluationRepository(db)
             .get_history(
