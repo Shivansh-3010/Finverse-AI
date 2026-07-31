@@ -1,13 +1,20 @@
-from services.model_comparison_service import (
-    ModelComparisonService,
-)
-
 from forecasting.ensemble_engine import (
     EnsembleEngine,
 )
 
+from services.model_comparison_service import (
+    ModelComparisonService,
+)
+
 
 class EnsembleForecastService:
+
+    REQUIRED_MODELS = (
+        "xgboost",
+        "prophet",
+        "lstm",
+        "transformer",
+    )
 
     @staticmethod
     def forecast(
@@ -26,32 +33,36 @@ class EnsembleForecastService:
             )
         )
 
-        return (
-            EnsembleEngine.combine(
-                xgb_prediction_pct=
-                    comparison["xgboost"][
-                        "predicted_return_pct"
-                    ],
+        predictions = {}
 
-                prophet_prediction_pct=
-                    comparison["prophet"][
-                        "predicted_return_pct"
-                    ],
+        for model_name in (
+            EnsembleForecastService.REQUIRED_MODELS
+        ):
 
-                lstm_prediction_pct=
-                    comparison["lstm"][
-                        "predicted_return_pct"
-                    ],
-                    
-                transformer_prediction_pct=
-                    comparison["transformer"][
-                        "predicted_return_pct"
-                    ],
-
-                confidence=
-                    comparison["xgboost"].get(
-                        "confidence",
-                        50.0
-                    ),
+            model_result = comparison.get(
+                model_name,
             )
+
+            if (
+                not model_result
+                or "predicted_return_pct"
+                not in model_result
+            ):
+                continue
+
+            predictions[model_name] = (
+                model_result[
+                    "predicted_return_pct"
+                ]
+            )
+
+        if len(predictions) < 2:
+            raise ValueError(
+                "At least two model predictions are required "
+                "to generate an ensemble forecast."
+            )
+
+        return EnsembleEngine.combine(
+            predictions=predictions,
+            comparison=comparison,
         )

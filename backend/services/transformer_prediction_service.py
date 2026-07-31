@@ -1,8 +1,8 @@
-import torch
 import numpy as np
+import torch
 
-from repositories.ohlcv_repository import (
-    OHLCVRepository,
+from forecasting.forecast_preprocessing_pipeline import (
+    ForecastPreprocessingPipeline,
 )
 
 from forecasting.transformer_engine import (
@@ -13,8 +13,8 @@ from forecasting.transformer_model_manager import (
     TransformerModelManager,
 )
 
-from forecasting.lstm_scaler_manager import (
-    LSTMScalerManager,
+from forecasting.scaler_manager import (
+    ScalerManager,
 )
 
 
@@ -27,112 +27,91 @@ class TransformerPredictionService:
         timeframe: str = "1d",
     ):
 
-        records = (
-            OHLCVRepository(db)
-            .get_history_by_symbol_and_timeframe(
+        pipeline = (
+            ForecastPreprocessingPipeline.prepare(
+                db=db,
                 symbol=symbol,
                 timeframe=timeframe,
+                build_sequences=False,
             )
         )
 
-        prices = [
-            record.close
-            for record in records
-            if record.close is not None
-            and not np.isnan(
-                record.close
-            )
-        ]
+        dataset = pipeline["dataset"]
+        feature_columns = pipeline["feature_columns"]
+        ohlcv_df = pipeline["ohlcv_df"]
 
-        scaler = (
-            LSTMScalerManager.load(
-                "models/transformer/transformer_scaler.pkl"
-            )
+        print(
+            "Feature count:",
+            len(feature_columns),
         )
 
-        prices_scaled = (
-            scaler.transform(
-                np.array(prices).reshape(
-                    -1,
-                    1
-                )
-            )
-            .flatten()
+        print(
+            "Feature columns:",
+            feature_columns,
         )
 
-        sequence = prices_scaled[-30:]
+        scaler = ScalerManager.load(
+            "models/transformer/transformer_scaler.pkl",
+        )
 
-        X = np.array(
-            sequence
-        ).reshape(
-            1,
-            30,
-            1
+        dataset[feature_columns] = scaler.transform(
+            dataset[feature_columns]
+        )
+
+        sequence = (
+            dataset[feature_columns]
+            .tail(30)
+            .to_numpy(dtype=np.float32)
         )
 
         X_tensor = torch.tensor(
-            X,
+            sequence,
             dtype=torch.float32,
-        )
+        ).unsqueeze(0)
 
-        model = (
-            TransformerModelManager.load(
-                TransformerEngine(),
-                "models/transformer/transformer_model.pt",
-            )
+        model = TransformerModelManager.load(
+            TransformerEngine(
+                input_size=len(feature_columns),
+            ),
+            "models/transformer/transformer_model.pt",
         )
 
         with torch.no_grad():
 
-            prediction_scaled = (
-                model(
-                    X_tensor
-                )
+            predicted_return_pct = (
+                model(X_tensor)
                 .item()
             )
 
-        prediction = (
-            scaler.inverse_transform(
-                np.array(
-                    [[prediction_scaled]]
-                )
-            )[0][0]
+        current_price = float(
+            ohlcv_df.iloc[-1]["close"]
         )
 
-        current_price = (
-            prices[-1]
+        prediction = current_price * (
+            1
+            + predicted_return_pct / 100.0
         )
-
-        predicted_return_pct = (
-            (
-                prediction
-                - current_price
-            )
-            / current_price
-        ) * 100
 
         return {
             "symbol": symbol,
             "model": "transformer",
-
-            "prediction":
-                round(
-                    float(prediction),
-                    2
-                ),
-
-            "predicted_return_pct":
-                round(
-                    float(
-                        predicted_return_pct
-                    ),
-                    4
-                ),
-
-            "direction":
-                (
-                    "bullish"
-                    if predicted_return_pct > 0
-                    else "bearish"
-                ),
+            "timeframe": timeframe,
+            "current_price": round(
+                current_price,
+                2,
+            ),
+            "prediction": round(
+                prediction,
+                2,
+            ),
+            "predicted_return_pct": round(
+                predicted_return_pct,
+                4,
+            ),
+            "direction": (
+                "bullish"
+                if predicted_return_pct > 0
+                else "bearish"
+            ),
+            "features": len(feature_columns),
         }

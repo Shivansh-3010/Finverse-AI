@@ -61,7 +61,7 @@ class ModelComparisonService:
 
         feature_names = (
             ModelLoader.load_features(
-                model_type="xgboost",
+                symbol=symbol,
                 horizon=horizon,
             )
         )

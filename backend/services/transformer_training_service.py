@@ -1,27 +1,17 @@
-import numpy as np
-
-from sklearn.preprocessing import (
-    MinMaxScaler,
+from forecasting.forecast_preprocessing_pipeline import (
+    ForecastPreprocessingPipeline,
 )
 
-from repositories.ohlcv_repository import (
-    OHLCVRepository,
-)
-
-from forecasting.lstm_dataset_builder import (
-    LSTMDatasetBuilder,
-)
-
-from forecasting.lstm_scaler_manager import (
-    LSTMScalerManager,
-)
-
-from forecasting.transformer_trainer import (
-    TransformerTrainer,
+from forecasting.scaler_manager import (
+    ScalerManager,
 )
 
 from forecasting.transformer_model_manager import (
     TransformerModelManager,
+)
+
+from forecasting.transformer_trainer import (
+    TransformerTrainer,
 )
 
 
@@ -34,53 +24,37 @@ class TransformerTrainingService:
         timeframe: str = "1d",
     ):
 
-        records = (
-            OHLCVRepository(db)
-            .get_history_by_symbol_and_timeframe(
+        pipeline = (
+            ForecastPreprocessingPipeline.prepare(
+                db=db,
                 symbol=symbol,
                 timeframe=timeframe,
             )
         )
 
-        prices = [
-            record.close
-            for record in records
-            if record.close is not None
-            and not np.isnan(
-                record.close
-            )
-        ]
+        X = pipeline["X"]
+        y = pipeline["y"]
+        scaler = pipeline["scaler"]
+        feature_columns = pipeline["feature_columns"]
 
         print(
-            "Valid Prices:",
-            len(prices)
+            "Feature count:",
+            len(feature_columns),
         )
 
-        scaler = MinMaxScaler()
-
-        prices = (
-            scaler.fit_transform(
-                np.array(prices).reshape(
-                    -1,
-                    1
-                )
-            )
-            .flatten()
+        print(
+            "Feature columns:",
+            feature_columns,
         )
 
-        X, y = (
-            LSTMDatasetBuilder.build(
-                prices=prices,
-                sequence_length=30,
-            )
+        print(
+            f"Training samples: {len(X)}"
         )
 
-        model = (
-            TransformerTrainer.train(
-                X,
-                y,
-                epochs=20,
-            )
+        model = TransformerTrainer.train(
+            X,
+            y,
+            epochs=20,
         )
 
         TransformerModelManager.save(
@@ -88,13 +62,19 @@ class TransformerTrainingService:
             "models/transformer/transformer_model.pt",
         )
 
-        LSTMScalerManager.save(
+        print(
+            "Model saved successfully."
+        )
+
+        ScalerManager.save(
             scaler,
             "models/transformer/transformer_scaler.pkl",
         )
 
         return {
             "symbol": symbol,
+            "timeframe": timeframe,
             "samples": len(X),
+            "features": len(feature_columns),
             "status": "trained",
         }

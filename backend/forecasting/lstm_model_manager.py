@@ -20,11 +20,13 @@ class LSTMModelManager:
         path: str,
     ):
 
+        state_dict = torch.load(
+            path,
+            map_location="cpu",
+        )
+
         model.load_state_dict(
-            torch.load(
-                path,
-                map_location="cpu",
-            )
+            state_dict,
         )
 
         model.eval()

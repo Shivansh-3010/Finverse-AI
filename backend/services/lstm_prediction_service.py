@@ -1,21 +1,8 @@
-import torch
 import numpy as np
-import pandas as pd
+import torch
 
-from repositories.ohlcv_repository import (
-    OHLCVRepository,
-)
-
-from repositories.candlestick_pattern_repository import (
-    CandlestickPatternRepository,
-)
-
-from repositories.news_article_repository import (
-    NewsArticleRepository,
-)
-
-from forecasting.dataset_builder import (
-    DatasetBuilder,
+from forecasting.forecast_preprocessing_pipeline import (
+    ForecastPreprocessingPipeline,
 )
 
 from forecasting.lstm_engine import (
@@ -26,13 +13,10 @@ from forecasting.lstm_model_manager import (
     LSTMModelManager,
 )
 
-from forecasting.lstm_scaler_manager import (
-    LSTMScalerManager,
+from forecasting.scaler_manager import (
+    ScalerManager,
 )
 
-from utils.ohlcv_dataframe import (
-    ohlcv_to_dataframe,
-)
 
 class LSTMPredictionService:
 
@@ -43,86 +27,47 @@ class LSTMPredictionService:
         timeframe: str = "1d",
     ):
 
-        records = (
-            OHLCVRepository(db)
-            .get_history_by_symbol_and_timeframe(
+        pipeline = (
+            ForecastPreprocessingPipeline.prepare(
+                db=db,
                 symbol=symbol,
                 timeframe=timeframe,
+                build_sequences=False,
             )
         )
 
-        if not records:
-            raise ValueError(
-                f"No OHLCV history found for {symbol}"
-            )
+        dataset = pipeline["dataset"]
+        feature_columns = pipeline["feature_columns"]
+        ohlcv_df = pipeline["ohlcv_df"]
 
-        ohlcv_df = ohlcv_to_dataframe(records)
-
-        candlestick_records = (
-            CandlestickPatternRepository(db)
-            .get_history_by_timeframe(
-                symbol=symbol,
-                timeframe=timeframe,
-            )
+        print(
+            "Feature count:",
+            len(feature_columns),
         )
 
-        candlestick_df = pd.DataFrame(
-            [
-                {
-                    "timestamp": p.timestamp,
-                    "strength": p.strength,
-                    "confidence": p.confidence,
-                    "candlestick_score": p.candlestick_score,
-                }
-                for p in candlestick_records
-            ]
+        print(
+            "Feature columns:",
+            feature_columns,
         )
 
-        news_articles = (
-            NewsArticleRepository(db)
-            .get_training_history(symbol)
+        scaler = ScalerManager.load(
+            "models/lstm/lstm_scaler.pkl",
         )
 
-        dataset = DatasetBuilder.build(
-            df=ohlcv_df,
-            candlestick_features=candlestick_df,
-            news_articles=news_articles,
+        dataset[feature_columns] = scaler.transform(
+            dataset[feature_columns]
         )
 
-        feature_columns = [
-            c
-            for c in dataset.columns
-            if c not in [
-                "timestamp",
-                "target",
-            ]
-        ]
-        
-        print("Feature count:", len(feature_columns))
-        print("Feature columns:", feature_columns)
-
-        feature_matrix = dataset[
-            feature_columns
-        ].values
-
-        scaler = LSTMScalerManager.load(
-            "models/lstm/lstm_scaler.pkl"
+        sequence = (
+            dataset[feature_columns]
+            .tail(30)
+            .to_numpy(dtype=np.float32)
         )
-
-        feature_matrix = scaler.transform(
-            feature_matrix
-        )
-
-        sequence = feature_matrix[-30:]
 
         X_tensor = torch.tensor(
-            sequence.reshape(
-                1,
-                30,
-                len(feature_columns),
-            ),
+            sequence,
             dtype=torch.float32,
-        )
+        ).unsqueeze(0)
 
         model = LSTMModelManager.load(
             LSTMEngine(
@@ -131,27 +76,20 @@ class LSTMPredictionService:
             "models/lstm/lstm_model.pt",
         )
 
-        model.eval()
-
         with torch.no_grad():
 
             predicted_return_pct = (
-                model(
-                    X_tensor
-                )
+                model(X_tensor)
                 .item()
             )
-        
+
         current_price = float(
             ohlcv_df.iloc[-1]["close"]
         )
 
         prediction = current_price * (
             1
-            + (
-                predicted_return_pct
-                / 100.0
-            )
+            + predicted_return_pct / 100.0
         )
 
         return {
@@ -175,7 +113,5 @@ class LSTMPredictionService:
                 if predicted_return_pct > 0
                 else "bearish"
             ),
-            "features": len(
-                feature_columns
-            ),
+            "features": len(feature_columns),
         }
