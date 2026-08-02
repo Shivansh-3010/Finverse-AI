@@ -1,9 +1,17 @@
+from forecasting.adaptive_weight_engine import (
+    AdaptiveWeightEngine,
+)
+
 from forecasting.ensemble_engine import (
     EnsembleEngine,
 )
 
 from services.model_comparison_service import (
     ModelComparisonService,
+)
+
+from services.model_leaderboard_service import (
+    ModelLeaderboardService,
 )
 
 
@@ -22,6 +30,8 @@ class EnsembleForecastService:
         symbol: str,
         timeframe: str = "1d",
         horizon: str = "1d",
+        adaptive_weights: bool = True,
+        leaderboard_window: int = 100,
     ):
 
         comparison = (
@@ -62,7 +72,32 @@ class EnsembleForecastService:
                 "to generate an ensemble forecast."
             )
 
+        weights = None
+
+        if adaptive_weights:
+
+            leaderboard = (
+                ModelLeaderboardService.leaderboard(
+                    db=db,
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    window=leaderboard_window,
+                )
+            )
+
+            if leaderboard:
+
+                adaptive = (
+                    AdaptiveWeightEngine.calculate(
+                        leaderboard
+                    )
+                )
+
+                if len(adaptive) >= 2:
+                    weights = adaptive
+
         return EnsembleEngine.combine(
             predictions=predictions,
             comparison=comparison,
+            weights=weights,
         )

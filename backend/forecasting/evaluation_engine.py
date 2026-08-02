@@ -97,23 +97,38 @@ class EvaluationEngine:
         )
 
         MonitoringMetrics.update_prediction_metrics(
-            mae=
-                EvaluationMetricsEngine.mae(
-                    evaluations
-                ),
+            mae=EvaluationMetricsEngine.mae(
+                evaluations
+            ),
 
-            rmse=
-                EvaluationMetricsEngine.rmse(
-                    evaluations
-                ),
+            rmse=EvaluationMetricsEngine.rmse(
+                evaluations
+            ),
 
-            mape=
-                EvaluationMetricsEngine.mape(
-                    evaluations
-                ),
+            mape=EvaluationMetricsEngine.mape(
+                evaluations
+            ),
+
+            smape=EvaluationMetricsEngine.smape(
+                evaluations
+            ),
 
             directional_accuracy=
                 EvaluationMetricsEngine.directional_accuracy(
+                    evaluations
+                ),
+
+            hit_rate=EvaluationMetricsEngine.hit_rate(
+                evaluations
+            ),
+
+            mean_bias=
+                EvaluationMetricsEngine.mean_bias(
+                    evaluations
+                ),
+
+            max_absolute_error=
+                EvaluationMetricsEngine.max_absolute_error(
                     evaluations
                 ),
         )

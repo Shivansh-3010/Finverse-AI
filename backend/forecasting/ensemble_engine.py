@@ -22,12 +22,18 @@ class EnsembleEngine:
     def combine(
         predictions: dict,
         comparison: dict,
+        weights: dict | None = None,
     ):
+
+        if weights is None:
+            weights = (
+                EnsembleEngine.DEFAULT_WEIGHTS
+            )
 
         available_models = [
             model
             for model in predictions
-            if model in EnsembleEngine.DEFAULT_WEIGHTS
+            if model in weights
         ]
 
         if len(available_models) < 2:
@@ -36,14 +42,14 @@ class EnsembleEngine:
             )
 
         total_weight = sum(
-            EnsembleEngine.DEFAULT_WEIGHTS[model]
+            weights[model]
             for model in available_models
         )
 
         weighted_prediction = (
             sum(
                 predictions[model]
-                * EnsembleEngine.DEFAULT_WEIGHTS[model]
+                * weights[model]
                 for model in available_models
             )
             / total_weight
@@ -105,7 +111,11 @@ class EnsembleEngine:
             direction = "neutral"
 
         explanation = [
-            f"{model.upper()}: {predictions[model]:.4f}%"
+            (
+                f"{model.upper()}: "
+                f"{predictions[model]:.4f}% "
+                f"(weight={weights[model]:.3f})"
+            )
             for model in available_models
         ]
 
@@ -114,16 +124,29 @@ class EnsembleEngine:
                 weighted_prediction,
                 4,
             ),
+
             "direction": direction,
+
             "confidence": round(
                 confidence,
                 2,
             ),
+
             "agreement_score": round(
                 agreement_score,
                 2,
             ),
+
+            "weights": {
+                model: round(
+                    weights[model],
+                    4,
+                )
+                for model in available_models
+            },
+
             "models_used": available_models,
+
             "model_predictions": {
                 model: round(
                     predictions[model],
@@ -131,5 +154,6 @@ class EnsembleEngine:
                 )
                 for model in available_models
             },
+
             "explanation": explanation,
         }
