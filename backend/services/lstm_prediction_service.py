@@ -91,27 +91,53 @@ class LSTMPredictionService:
             1
             + predicted_return_pct / 100.0
         )
+        
+        confidence = max(
+            0.0,
+            min(
+                100.0,
+                100.0
+                - min(
+                    abs(
+                        predicted_return_pct
+                    ) * 10.0,
+                    50.0,
+                ),
+            ),
+        )
 
         return {
             "symbol": symbol,
             "model": "lstm",
             "timeframe": timeframe,
+
             "current_price": round(
                 current_price,
                 2,
             ),
+
             "prediction": round(
                 prediction,
                 2,
             ),
+
             "predicted_return_pct": round(
                 predicted_return_pct,
                 4,
             ),
+
             "direction": (
                 "bullish"
                 if predicted_return_pct > 0
                 else "bearish"
             ),
-            "features": len(feature_columns),
+
+            "confidence": round(
+                confidence,
+                2,
+            ),
+
+            "features": len(
+                feature_columns
+            ),
         }

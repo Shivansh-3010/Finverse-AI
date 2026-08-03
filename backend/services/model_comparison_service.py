@@ -95,13 +95,29 @@ class ModelComparisonService:
 
             confidence = (
                 ConfidenceEngine.calculate(
+
                     mae=
                         EvaluationMetricsEngine.mae(
                             evaluations
                         ),
 
+                    rmse=
+                        EvaluationMetricsEngine.rmse(
+                            evaluations
+                        ),
+
+                    mape=
+                        EvaluationMetricsEngine.mape(
+                            evaluations
+                        ),
+
                     directional_accuracy=
                         EvaluationMetricsEngine.directional_accuracy(
+                            evaluations
+                        ),
+
+                    hit_rate=
+                        EvaluationMetricsEngine.hit_rate(
                             evaluations
                         ),
                 )

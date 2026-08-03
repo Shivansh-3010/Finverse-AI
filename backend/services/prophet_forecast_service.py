@@ -8,7 +8,7 @@ class ProphetForecastService:
     @staticmethod
     def forecast(
         prophet_df,
-        periods: int = 5
+        periods: int = 5,
     ):
 
         model = (
@@ -21,13 +21,13 @@ class ProphetForecastService:
 
         future = (
             model.make_future_dataframe(
-                periods=periods
+                periods=periods,
             )
         )
 
         forecast = (
             model.predict(
-                future
+                future,
             )
         )
 
@@ -41,12 +41,39 @@ class ProphetForecastService:
             latest["yhat"]
         )
 
+        lower_bound = float(
+            latest["yhat_lower"]
+        )
+
+        upper_bound = float(
+            latest["yhat_upper"]
+        )
+
         predicted_return_pct = (
             (
-                forecast_value - current_value
+                forecast_value
+                - current_value
             )
             / current_value
         ) * 100
+
+        interval_width = (
+            upper_bound
+            - lower_bound
+        )
+
+        confidence = max(
+            0.0,
+            min(
+                100.0,
+                100.0
+                - (
+                    interval_width
+                    / current_value
+                    * 100.0
+                ),
+            ),
+        )
 
         if predicted_return_pct > 1:
             direction = "bullish"
@@ -58,17 +85,38 @@ class ProphetForecastService:
             direction = "neutral"
 
         return {
+
+            "model": "prophet",
+
+            "current_price": round(
+                current_value,
+                2,
+            ),
+
+            "prediction": round(
+                forecast_value,
+                2,
+            ),
+
             "predicted_return_pct": round(
                 predicted_return_pct,
                 4,
             ),
-            "forecast": forecast_value,
-            "lower_bound": float(
-                latest["yhat_lower"]
+
+            "lower_bound": round(
+                lower_bound,
+                2,
             ),
-            "upper_bound": float(
-                latest["yhat_upper"]
+
+            "upper_bound": round(
+                upper_bound,
+                2,
             ),
+
             "direction": direction,
-            "confidence": 50.0,
+
+            "confidence": round(
+                confidence,
+                2,
+            ),
         }

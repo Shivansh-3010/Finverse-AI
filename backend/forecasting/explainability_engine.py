@@ -1,54 +1,92 @@
 class ExplainabilityEngine:
 
+    HIGH_CONFIDENCE = 80.0
+    MEDIUM_CONFIDENCE = 60.0
+
     @staticmethod
     def explain(
-        direction: str,
-        confidence: float,
-        xgb_return: float,
-        prophet_return: float,
+        comparison: dict,
+        ensemble: dict,
     ):
+
+        confidence = ensemble["confidence"]
+
+        if confidence >= ExplainabilityEngine.HIGH_CONFIDENCE:
+            confidence_label = "high"
+
+        elif confidence >= ExplainabilityEngine.MEDIUM_CONFIDENCE:
+            confidence_label = "moderate"
+
+        else:
+            confidence_label = "low"
+
+        bullish_models = []
+        bearish_models = []
+        neutral_models = []
+
+        for model_name, result in comparison.items():
+
+            direction = result.get(
+                "direction",
+                "neutral",
+            )
+
+            if direction == "bullish":
+                bullish_models.append(model_name.upper())
+
+            elif direction == "bearish":
+                bearish_models.append(model_name.upper())
+
+            else:
+                neutral_models.append(model_name.upper())
 
         reasons = []
 
-        if xgb_return > 0:
+        if bullish_models:
             reasons.append(
-                "XGBoost forecasts positive returns"
-            )
-        else:
-            reasons.append(
-                "XGBoost forecasts negative returns"
+                f"Bullish: {', '.join(bullish_models)}"
             )
 
-        if prophet_return > 0:
+        if bearish_models:
             reasons.append(
-                "Prophet forecasts upward price movement"
-            )
-        else:
-            reasons.append(
-                "Prophet forecasts downward price movement"
+                f"Bearish: {', '.join(bearish_models)}"
             )
 
-        if confidence >= 80:
-            confidence_label = (
-                "high confidence"
-            )
-        elif confidence >= 60:
-            confidence_label = (
-                "moderate confidence"
-            )
-        else:
-            confidence_label = (
-                "low confidence"
+        if neutral_models:
+            reasons.append(
+                f"Neutral: {', '.join(neutral_models)}"
             )
 
         return {
+
             "forecast": (
                 "BUY"
-                if direction == "bullish"
-                else "SELL"
+                if ensemble["direction"] == "bullish"
+                else (
+                    "SELL"
+                    if ensemble["direction"] == "bearish"
+                    else "HOLD"
+                )
             ),
-            "confidence": confidence,
+
+            "direction":
+                ensemble["direction"],
+
+            "confidence":
+                confidence,
+
+            "confidence_label":
+                confidence_label,
+
+            "agreement_score":
+                ensemble["agreement_score"],
+
+            "models_used":
+                ensemble["models_used"],
+
             "reason":
-                ", ".join(reasons)
-                + f" with {confidence_label}.",
+                "; ".join(reasons),
+
+            "model_predictions":
+                ensemble["model_predictions"],
         }

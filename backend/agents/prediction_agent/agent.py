@@ -80,7 +80,7 @@ class PredictionAgent:
 
             feature_names = (
                 ModelLoader.load_features(
-                    model_type="xgboost",
+                    symbol=symbol,
                     horizon=horizon,
                 )
             )
@@ -162,23 +162,57 @@ class PredictionAgent:
                 )
             )
 
+            comparison = (
+                {
+                    "xgboost": {
+                        "direction": (
+                            "bullish"
+                            if prediction > 0
+                            else "bearish"
+                        ),
+                        "predicted_return_pct": prediction,
+                        "confidence": confidence,
+                    }
+                }
+            )
+
+            for model in (
+                "prophet",
+                "lstm",
+                "transformer",
+            ):
+
+                if model in ensemble.get(
+                    "model_predictions",
+                    {},
+                ):
+
+                    comparison[model] = {
+
+                        "direction":
+                            (
+                                "bullish"
+                                if ensemble[
+                                    "model_predictions"
+                                ][model] > 0
+                                else "bearish"
+                            ),
+
+                        "predicted_return_pct":
+                            ensemble[
+                                "model_predictions"
+                            ][model],
+
+                        "confidence":
+                            ensemble[
+                                "confidence"
+                            ],
+                    }
+
             explanation = (
                 ExplainabilityEngine.explain(
-                    direction=
-                        ensemble["direction"],
-
-                    confidence=
-                        ensemble["confidence"],
-
-                    xgb_return=
-                        ensemble[
-                            "xgboost_return_pct"
-                        ],
-
-                    prophet_return=
-                        ensemble[
-                            "prophet_return_pct"
-                        ],
+                    comparison=comparison,
+                    ensemble=ensemble,
                 )
             )
             
@@ -211,6 +245,26 @@ class PredictionAgent:
 
                 "reason":
                     explanation["reason"],
+
+                "agreement_score":
+                    explanation[
+                        "agreement_score"
+                    ],
+
+                "confidence_label":
+                    explanation[
+                        "confidence_label"
+                    ],
+
+                "models_used":
+                    explanation[
+                        "models_used"
+                    ],
+
+                "model_predictions":
+                    explanation[
+                        "model_predictions"
+                    ],
             }
 
         finally:
