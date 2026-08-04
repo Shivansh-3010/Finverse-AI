@@ -51,7 +51,7 @@ class LSTMPredictionService:
         )
 
         scaler = ScalerManager.load(
-            "models/lstm/lstm_scaler.pkl",
+            f"models/lstm/{symbol.lower()}_lstm_scaler_{timeframe}.pkl",
         )
 
         dataset[feature_columns] = scaler.transform(
@@ -73,7 +73,7 @@ class LSTMPredictionService:
             LSTMEngine(
                 input_size=len(feature_columns),
             ),
-            "models/lstm/lstm_model.pt",
+            f"models/lstm/{symbol.lower()}_lstm_{timeframe}.pt",
         )
 
         with torch.no_grad():

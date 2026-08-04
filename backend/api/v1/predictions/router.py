@@ -1,9 +1,19 @@
 from fastapi import APIRouter
 
-from schemas.base_response import BaseResponse
+from database.session import (
+    SessionLocal,
+)
+
+from schemas.base_response import (
+    BaseResponse,
+)
 
 from services.prediction_service import (
     PredictionService,
+)
+
+from services.model_comparison_service import (
+    ModelComparisonService,
 )
 
 router = APIRouter()
@@ -42,10 +52,6 @@ async def compare_models(
     timeframe: str = "1d",
     horizon: str = "1d",
 ):
-    from database.session import SessionLocal
-    from services.model_comparison_service import (
-        ModelComparisonService,
-    )
 
     db = SessionLocal()
 

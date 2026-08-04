@@ -1,0 +1,14 @@
+{
+    "model_name": "prophet",
+    "symbol": "RELIANCE",
+    "horizon": "1d",
+    "version": "1d-v1",
+    "training_date": "2026-08-04T10:23:12.422189",
+    "artifact_path": "C:\\Projects\\Finverse-AI\\backend\\models\\prophet\\RELIANCE_1d.joblib",
+    "metrics": {
+        "mae": 1.5068617922566805,
+        "rmse": 2.21667016286169,
+        "mape": 121.22888606766134,
+        "directional_accuracy": 52.27689086626538
+    }
+}

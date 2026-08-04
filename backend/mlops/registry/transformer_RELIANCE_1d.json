@@ -1,0 +1,14 @@
+{
+    "model_name": "transformer",
+    "symbol": "RELIANCE",
+    "horizon": "1d",
+    "version": "1d-v1",
+    "training_date": "2026-08-04T11:13:04.611034",
+    "artifact_path": "models\\transformer\\reliance_transformer_1d.pt",
+    "metrics": {
+        "mae": 1.5101157426834106,
+        "rmse": 2.219604015350342,
+        "mape": 294520.6875,
+        "directional_accuracy": 50.479443057927234
+    }
+}

@@ -28,20 +28,67 @@ class PredictionService:
             ModelComparisonService,
         )
 
+        from services.ensemble_forecast_service import (
+            EnsembleForecastService,
+        )
+
+        from services.prediction_evaluation_service import (
+            PredictionEvaluationService,
+        )
+
+        from services.model_leaderboard_service import (
+            ModelLeaderboardService,
+        )
+
         prediction = PredictionAgent.predict(
             symbol=symbol,
             timeframe=timeframe,
             horizon=horizon,
         )
 
-        comparison = ModelComparisonService.compare(
-            db=db,
-            symbol=symbol,
-            timeframe=timeframe,
-            horizon=horizon,
+        comparison = (
+            ModelComparisonService.compare(
+                db=db,
+                symbol=symbol,
+                timeframe=timeframe,
+                horizon=horizon,
+            )
+        )
+
+        ensemble = (
+            EnsembleForecastService.forecast(
+                db=db,
+                symbol=symbol,
+                timeframe=timeframe,
+                horizon=horizon,
+            )
+        )
+
+        evaluation = (
+            PredictionEvaluationService.summary(
+                db=db,
+                symbol=symbol,
+                timeframe=timeframe,
+            )
+        )
+
+        leaderboard = (
+            ModelLeaderboardService.leaderboard(
+                db=db,
+                symbol=symbol,
+                timeframe=timeframe,
+            )
         )
 
         return {
-            "summary": prediction,
-            "models": comparison,
+
+            "prediction": prediction,
+
+            "ensemble": ensemble,
+
+            "model_comparison": comparison,
+
+            "evaluation": evaluation,
+
+            "leaderboard": leaderboard,
         }

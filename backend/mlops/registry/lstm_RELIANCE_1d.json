@@ -1,0 +1,14 @@
+{
+    "model_name": "lstm",
+    "symbol": "RELIANCE",
+    "horizon": "1d",
+    "version": "1d-v1",
+    "training_date": "2026-08-04T10:51:54.290091",
+    "artifact_path": "models/lstm/reliance_lstm_1d.pt",
+    "metrics": {
+        "mae": 1.508238673210144,
+        "rmse": 2.21669602394104,
+        "mape": 302608.4375,
+        "directional_accuracy": 50.5057139104164
+    }
+}

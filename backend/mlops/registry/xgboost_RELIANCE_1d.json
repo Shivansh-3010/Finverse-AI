@@ -1,0 +1,13 @@
+{
+    "model_name": "xgboost",
+    "symbol": "RELIANCE",
+    "horizon": "1d",
+    "version": "1.0.0",
+    "training_date": "2026-08-04T07:22:06.244383",
+    "artifact_path": "backend/models/xgboost/reliance_xgb_1d.pkl",
+    "metrics": {
+        "mae": 1.21,
+        "rmse": 2.03,
+        "directional_accuracy": 74.5
+    }
+}

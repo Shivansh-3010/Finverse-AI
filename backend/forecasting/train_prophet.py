@@ -16,6 +16,16 @@ import argparse
 
 from forecasting.prophet_engine import ProphetEngine
 from forecasting.training_pipeline import TrainingPipeline
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+)
+
+import numpy as np
+
+from mlops.registry.model_registry import (
+    ModelRegistry,
+)
 
 
 def train(
@@ -62,6 +72,56 @@ def train(
 
     model.fit(prophet_df)
 
+    forecast = model.predict(
+        prophet_df[["ds"]]
+    )
+
+    y_true = prophet_df["y"].to_numpy()
+
+    y_pred = forecast["yhat"].to_numpy()
+
+    mae = mean_absolute_error(
+        y_true,
+        y_pred,
+    )
+
+    rmse = np.sqrt(
+        mean_squared_error(
+            y_true,
+            y_pred,
+        )
+    )
+
+    mape = (
+        np.mean(
+            np.abs(
+                (
+                    y_true - y_pred
+                )
+                / np.where(
+                    y_true == 0,
+                    1,
+                    y_true,
+                )
+            )
+        )
+        * 100
+    )
+
+    directional_accuracy = (
+        (
+            np.sign(
+                np.diff(y_true)
+            )
+            ==
+            np.sign(
+                np.diff(y_pred)
+            )
+        )
+        .mean()
+        * 100
+    )
+
     output_dir = (
         PROJECT_ROOT
         / "models"
@@ -82,9 +142,51 @@ def train(
         model,
         model_path,
     )
+    
+    ModelRegistry.register(
+        model_name="prophet",
+        symbol=symbol,
+        horizon=horizon,
+        version=f"{horizon}-v1",
+        artifact_path=str(model_path),
+        metrics={
+            "mae": float(mae),
+            "rmse": float(rmse),
+            "mape": float(mape),
+            "directional_accuracy": float(
+                directional_accuracy
+            ),
+        },
+    )
 
     print(
         f"Saved Prophet model -> {model_path}"
+    )
+    
+    print()
+
+    print(
+        "MAE:",
+        round(mae, 4),
+    )
+
+    print(
+        "RMSE:",
+        round(rmse, 4),
+    )
+
+    print(
+        "MAPE:",
+        round(mape, 4),
+    )
+
+    print(
+        "Directional Accuracy:",
+        round(
+            directional_accuracy,
+            2,
+        ),
+        "%",
     )
 
 

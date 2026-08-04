@@ -1,0 +1,14 @@
+{
+    "model_name": "xgboost",
+    "symbol": "RELIANCE",
+    "horizon": "5d",
+    "version": "5d-v1",
+    "training_date": "2026-08-04T07:20:19.150484",
+    "artifact_path": "backend/models/xgboost/reliance_xgb_5d.pkl",
+    "metrics": {
+        "mae": 4.481206154079171,
+        "rmse": 5.479286889836284,
+        "mape": 796.9473818058582,
+        "directional_accuracy": 56.05762933857237
+    }
+}

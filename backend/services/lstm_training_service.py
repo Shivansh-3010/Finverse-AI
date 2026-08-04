@@ -1,3 +1,17 @@
+import numpy as np
+import torch
+
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+)
+
+from pathlib import Path
+
+from mlops.registry.model_registry import (
+    ModelRegistry,
+)
+
 from forecasting.forecast_preprocessing_pipeline import (
     ForecastPreprocessingPipeline,
 )
@@ -50,16 +64,123 @@ class LSTMTrainingService:
         print(
             f"Training samples: {len(X)}"
         )
+        
+        model_dir = (
+            Path("models")
+            / "lstm"
+        )
+
+        model_dir.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        model_path = (
+            model_dir
+            / f"{symbol.lower()}_lstm_{timeframe}.pt"
+        )
+
+        scaler_path = (
+            model_dir
+            / f"{symbol.lower()}_lstm_scaler_{timeframe}.pkl"
+        )
 
         model = LSTMTrainer.train(
             X,
             y,
             epochs=20,
         )
+        
+        model.eval()
+
+        with torch.no_grad():
+
+            predictions = (
+                model(
+                    torch.tensor(
+                        X,
+                        dtype=torch.float32,
+                    )
+                )
+                .cpu()
+                .numpy()
+                .flatten()
+            )
+
+        mae = mean_absolute_error(
+            y,
+            predictions,
+        )
+
+        rmse = np.sqrt(
+            mean_squared_error(
+                y,
+                predictions,
+            )
+        )
+
+        mape = (
+            np.mean(
+                np.abs(
+                    (y - predictions)
+                    / np.maximum(
+                        np.abs(y),
+                        1e-6,
+                    )
+                )
+            )
+            * 100
+        )
+
+        directional_accuracy = (
+            (
+                np.sign(predictions)
+                ==
+                np.sign(y)
+            ).mean()
+            * 100
+        )
+
+        print()
+
+        print(
+            f"MAE: {mae:.4f}"
+        )
+
+        print(
+            f"RMSE: {rmse:.4f}"
+        )
+
+        print(
+            f"MAPE: {mape:.4f}"
+        )
+
+        print(
+            f"Directional Accuracy: {directional_accuracy:.2f}%"
+        )
 
         LSTMModelManager.save(
             model,
-            "models/lstm/lstm_model.pt",
+            str(model_path),
+        )
+        
+        ModelRegistry.register(
+            model_name="lstm",
+            symbol=symbol,
+            horizon=timeframe,
+            version=f"{timeframe}-v1",
+            artifact_path=(
+                f"models/lstm/"
+                f"{symbol.lower()}_lstm_{timeframe}.pt"
+            ),
+            metrics={
+                "mae": float(mae),
+                "rmse": float(rmse),
+                "mape": float(mape),
+                "directional_accuracy": float(
+                    directional_accuracy
+                ),
+            },
         )
 
         print(
@@ -68,13 +189,28 @@ class LSTMTrainingService:
 
         ScalerManager.save(
             scaler,
-            "models/lstm/lstm_scaler.pkl",
+            str(scaler_path),
         )
 
         return {
+
             "symbol": symbol,
+
             "timeframe": timeframe,
+
             "samples": len(X),
+
             "features": len(feature_columns),
+
+            "mae": float(mae),
+
+            "rmse": float(rmse),
+
+            "mape": float(mape),
+
+            "directional_accuracy": float(
+                directional_accuracy
+            ),
+
             "status": "trained",
         }

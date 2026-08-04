@@ -30,6 +30,19 @@ from forecasting.dataset_builder import (
 from forecasting.xgboost_engine import (
     XGBoostEngine,
 )
+
+from services.xgboost_prediction_service import (
+    XGBoostPredictionService,
+)
+
+from services.xgboost_training_service import (
+    XGBoostTrainingService,
+)
+
+from mlops.registry.model_registry import (
+    ModelRegistry,
+)
+
 from sklearn.model_selection import (
     train_test_split,
 )
@@ -378,22 +391,18 @@ def train(
 
         y = dataset["target"]
 
-        model = (
-            XGBoostEngine.build_model()
-        )
-
         X_train, X_test, y_train, y_test = (
             train_test_split(
                 X,
                 y,
                 test_size=0.2,
-                shuffle=False
+                shuffle=False,
             )
         )
 
-        model.fit(
-            X_train,
-            y_train
+        model = XGBoostTrainingService.train(
+            X_train=X_train,
+            y_train=y_train,
         )
         
         Path(
@@ -413,8 +422,11 @@ def train(
             f"models/xgboost/{symbol.lower()}_xgb_features_{horizon}.pkl"
         )
 
-        predictions = model.predict(
-            X_test
+        predictions = (
+            XGBoostPredictionService.predict(
+                model=model,
+                X=X_test,
+            )
         )
         
         mae = MetricsEngine.mae(
@@ -498,6 +510,35 @@ def train(
         ):
             print(
                 f"{feature}: {score:.4f}"
+            )
+            
+        ModelRegistry.register(
+        
+                model_name="xgboost",
+        
+                symbol=symbol,
+        
+                horizon=horizon,
+        
+                version=f"{horizon}-v1",
+        
+                metrics={
+        
+                    "mae": float(mae),
+        
+                    "rmse": float(rmse),
+        
+                    "mape": float(mape),
+        
+                    "directional_accuracy": float(
+                        directional_accuracy
+                    ),
+                },
+        
+                artifact_path=(
+                    f"backend/models/xgboost/"
+                    f"{symbol.lower()}_xgb_{horizon}.pkl"
+                ),
             )
             
         return {
