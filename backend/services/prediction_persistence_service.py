@@ -19,6 +19,7 @@ class PredictionPersistenceService:
         confidence: float,
         model_name: str = "xgboost",
         horizon: str = "1d",
+        timestamp=None,
     ):
 
         db = SessionLocal()
@@ -28,8 +29,11 @@ class PredictionPersistenceService:
             entity = Prediction(
                 symbol=symbol,
                 timeframe=timeframe,
-                timestamp=datetime.now(
-                    timezone.utc
+                timestamp=(
+                    timestamp
+                    or datetime.now(
+                        timezone.utc
+                    )
                 ),
                 model_name=model_name,
                 prediction=prediction_value,

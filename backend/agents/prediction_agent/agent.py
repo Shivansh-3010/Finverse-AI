@@ -143,15 +143,6 @@ class PredictionAgent:
             else:
 
                 confidence = 50.0
-            
-            PredictionPersistenceService.save_prediction(
-                symbol=symbol,
-                timeframe=timeframe,
-                prediction_value=prediction,
-                confidence=confidence,
-                model_name="xgboost",
-                horizon=horizon,
-            )
 
             ensemble = (
                 EnsembleForecastService.forecast(
@@ -161,6 +152,39 @@ class PredictionAgent:
                     horizon=horizon,
                 )
             )
+            
+            # ---------------------------------------------------------
+            # Persist predictions for every model
+            # ---------------------------------------------------------
+
+            from datetime import (
+                datetime,
+                timezone,
+            )
+            
+            prediction_timestamp = (
+                datetime.now(
+                    timezone.utc
+                )
+            )
+            for model_name, value in (
+                ensemble.get(
+                    "model_predictions",
+                    {}
+                ).items()
+            ):
+
+                PredictionPersistenceService.save_prediction(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    prediction_value=float(value),
+                    confidence=float(
+                        ensemble["confidence"]
+                    ),
+                    model_name=model_name,
+                    horizon=horizon,
+                    timestamp=prediction_timestamp,
+                )
 
             comparison = (
                 {
