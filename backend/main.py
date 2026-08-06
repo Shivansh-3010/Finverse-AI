@@ -17,6 +17,9 @@ from scheduler.market_data_scheduler import (
     start_scheduler,
     stop_scheduler,
 )
+from api.v1.mlops.router import (
+    router as mlops_router,
+)
 from api.v1.predictions.router import (
     router as predictions_router
 )
@@ -96,6 +99,12 @@ app.include_router(
     market_data_router,
     prefix="/api/v1",
     tags=["Market Data"]
+)
+
+app.include_router(
+    mlops_router,
+    prefix="/api/v1/mlops",
+    tags=["MLOps"],
 )
 
 @app.on_event("startup")

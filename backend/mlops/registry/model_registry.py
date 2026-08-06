@@ -164,3 +164,25 @@ class ModelRegistry:
                     x["horizon"],
                 )
         )
+        
+    @staticmethod
+    def get(
+        model_name: str,
+        symbol: str,
+        horizon: str,
+    ):
+
+        registry = (
+            ModelRegistry.list_models()
+        )
+
+        for model in registry:
+
+            if (
+                model["model_name"] == model_name
+                and model["symbol"] == symbol
+                and model["horizon"] == horizon
+            ):
+                return model
+
+        return {}
