@@ -71,6 +71,20 @@ def test():
 
     assert "prediction_drift" in result
 
+    assert result["status"] == "insufficient_data"
+
+    assert (
+        result["data_quality"]
+        ["feature_data_sufficient"]
+        is False
+    )
+
+    assert (
+        result["data_quality"]
+        ["prediction_data_sufficient"]
+        is False
+    )
+
 
 if __name__ == "__main__":
     test()

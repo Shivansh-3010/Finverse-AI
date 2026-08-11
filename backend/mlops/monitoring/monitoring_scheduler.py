@@ -3,6 +3,11 @@ from database.session import SessionLocal
 from services.monitoring_history_service import (
     MonitoringHistoryService,
 )
+
+from services.monitoring_data_service import (
+    MonitoringDataService,
+)
+
 from mlops.monitoring.model_performance_monitor import (
     ModelPerformanceMonitor,
 )
@@ -22,22 +27,37 @@ class MonitoringScheduler:
     def run(
         model_name: str,
         symbol: str,
-        horizon: str,
-        training_features,
-        production_features,
-        historical_predictions,
-        recent_predictions,
+        timeframe: str = "1d",
+        horizon: str = "1d",
     ):
+
+        data = (
+            MonitoringDataService
+            .get_model_data(
+                model_name=model_name,
+                symbol=symbol,
+                timeframe=timeframe,
+                horizon=horizon,
+            )
+        )
 
         report = (
             ModelPerformanceMonitor.monitor(
                 model_name=model_name,
                 symbol=symbol,
                 horizon=horizon,
-                training_features=training_features,
-                production_features=production_features,
-                historical_predictions=historical_predictions,
-                recent_predictions=recent_predictions,
+                training_features=data[
+                    "training_features"
+                ],
+                production_features=data[
+                    "production_features"
+                ],
+                historical_predictions=data[
+                    "historical_predictions"
+                ],
+                recent_predictions=data[
+                    "recent_predictions"
+                ],
             )
         )
 
@@ -52,7 +72,7 @@ class MonitoringScheduler:
                 report
             )
         )
-        
+
         db = SessionLocal()
 
         try:

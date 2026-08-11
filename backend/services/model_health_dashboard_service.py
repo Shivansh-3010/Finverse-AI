@@ -1,5 +1,3 @@
-import pandas as pd
-
 from mlops.monitoring.model_performance_monitor import (
     ModelPerformanceMonitor,
 )
@@ -8,36 +6,31 @@ from mlops.registry.model_registry import (
     ModelRegistry,
 )
 
+from services.monitoring_data_service import (
+    MonitoringDataService,
+)
+
 
 class ModelHealthDashboardService:
 
+    MODELS = [
+        ("xgboost", "RELIANCE", "1d", "5d"),
+        ("prophet", "RELIANCE", "1d", "1d"),
+        ("lstm", "RELIANCE", "1d", "1d"),
+        ("transformer", "RELIANCE", "1d", "1d"),
+    ]
+
     @staticmethod
-    def dashboard(
-        training_features: pd.DataFrame,
-        production_features: pd.DataFrame,
-        historical_predictions,
-        recent_predictions,
-    ):
+    def dashboard():
 
         dashboard = []
-
-        models = [
-
-            ("xgboost", "RELIANCE", "5d"),
-
-            ("prophet", "RELIANCE", "1d"),
-
-            ("lstm", "RELIANCE", "1d"),
-
-            ("transformer", "RELIANCE", "1d"),
-
-        ]
 
         for (
             model_name,
             symbol,
+            timeframe,
             horizon,
-        ) in models:
+        ) in ModelHealthDashboardService.MODELS:
 
             registry = ModelRegistry.get(
                 model_name=model_name,
@@ -45,73 +38,157 @@ class ModelHealthDashboardService:
                 horizon=horizon,
             )
 
-            if registry is None:
+            if not registry:
                 continue
 
-            report = (
-                ModelPerformanceMonitor.monitor(
-                    model_name=model_name,
-                    symbol=symbol,
-                    horizon=horizon,
-                    training_features=training_features,
-                    production_features=production_features,
-                    historical_predictions=historical_predictions,
-                    recent_predictions=recent_predictions,
+            try:
+
+                data = (
+                    MonitoringDataService
+                    .get_model_data(
+                        model_name=model_name,
+                        symbol=symbol,
+                        timeframe=timeframe,
+                        horizon=horizon,
+                    )
                 )
-            )
 
-            dashboard.append({
+                report = (
+                    ModelPerformanceMonitor.monitor(
+                        model_name=model_name,
+                        symbol=symbol,
+                        horizon=horizon,
+                        training_features=data[
+                            "training_features"
+                        ],
+                        production_features=data[
+                            "production_features"
+                        ],
+                        historical_predictions=data[
+                            "historical_predictions"
+                        ],
+                        recent_predictions=data[
+                            "recent_predictions"
+                        ],
+                    )
+                )
 
-                "model": model_name,
+                feature_drift = report[
+                    "feature_drift"
+                ]
 
-                "version": registry["version"],
+                dashboard.append({
 
-                "status": report["status"],
+                    "model": model_name,
 
-                "training_date": registry["training_date"],
+                    "version":
+                        registry["version"],
 
-                "metrics": registry["metrics"],
+                    "status":
+                        report["status"],
 
-                "feature_drift": any(
-                    item["drift_detected"]
-                    for item in report[
-                        "feature_drift"
-                    ].values()
-                ),
+                    "training_date":
+                        registry["training_date"],
 
-                "prediction_drift":
-                    report[
-                        "prediction_drift"
-                    ][
-                        "drift_detected"
-                    ],
-            })
+                    "metrics":
+                        registry["metrics"],
+
+                    "feature_drift":
+                        any(
+                            item[
+                                "drift_detected"
+                            ]
+                            for item in feature_drift.values()
+                        ),
+
+                    "prediction_drift":
+                        report[
+                            "prediction_drift"
+                        ].get(
+                            "drift_detected",
+                            False,
+                        ),
+
+                    "data_quality":
+                        report[
+                            "data_quality"
+                        ],
+
+                })
+
+            except Exception as exc:
+
+                dashboard.append({
+
+                    "model": model_name,
+
+                    "version":
+                        registry.get(
+                            "version"
+                        ),
+
+                    "status": "error",
+
+                    "training_date":
+                        registry.get(
+                            "training_date"
+                        ),
+
+                    "metrics":
+                        registry.get(
+                            "metrics",
+                            {},
+                        ),
+
+                    "feature_drift":
+                        False,
+
+                    "prediction_drift":
+                        False,
+
+                    "data_quality": {},
+
+                    "error": str(exc),
+
+                })
 
         return {
 
-            "total_models": len(
-                dashboard
-            ),
+            "total_models":
+                len(dashboard),
 
-            "healthy_models": sum(
+            "healthy_models":
+                sum(
+                    1
+                    for model in dashboard
+                    if model["status"]
+                    == "healthy"
+                ),
 
-                1
+            "warning_models":
+                sum(
+                    1
+                    for model in dashboard
+                    if model["status"]
+                    == "warning"
+                ),
 
-                for m in dashboard
+            "insufficient_data_models":
+                sum(
+                    1
+                    for model in dashboard
+                    if model["status"]
+                    == "insufficient_data"
+                ),
 
-                if m["status"] == "healthy"
+            "error_models":
+                sum(
+                    1
+                    for model in dashboard
+                    if model["status"]
+                    == "error"
+                ),
 
-            ),
-
-            "warning_models": sum(
-
-                1
-
-                for m in dashboard
-
-                if m["status"] == "warning"
-
-            ),
-
-            "models": dashboard,
+            "models":
+                dashboard,
         }

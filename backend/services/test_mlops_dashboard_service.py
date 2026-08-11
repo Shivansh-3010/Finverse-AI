@@ -1,5 +1,3 @@
-import pandas as pd
-
 from services.mlops_dashboard_service import (
     MLOpsDashboardService,
 )
@@ -7,52 +5,44 @@ from services.mlops_dashboard_service import (
 
 def test():
 
-    training = pd.DataFrame({
-
-        "rsi": [45, 50, 55],
-
-        "macd": [0.2, 0.3, 0.4],
-
-    })
-
-    production = pd.DataFrame({
-
-        "rsi": [70, 72, 69],
-
-        "macd": [0.2, 0.3, 0.4],
-
-    })
-
-    historical = [
-        1.0,
-        1.1,
-        0.9,
-    ]
-
-    recent = [
-        5.0,
-        4.9,
-        5.2,
-    ]
-
     result = (
         MLOpsDashboardService.dashboard(
             model_name="xgboost",
             symbol="RELIANCE",
+            timeframe="1d",
             horizon="5d",
-            training_features=training,
-            production_features=production,
-            historical_predictions=historical,
-            recent_predictions=recent,
         )
     )
 
     print(result)
 
     assert "summary" in result
+
     assert "dashboard" in result
+
     assert "alerts" in result
+
     assert "selected_model" in result
+
+    assert (
+        result["summary"]["total_models"]
+        == 4
+    )
+
+    assert (
+        "insufficient_data_models"
+        in result["summary"]
+    )
+
+    assert (
+        result["selected_model"]["model"]
+        == "xgboost"
+    )
+
+    assert (
+        "data_quality"
+        in result["selected_model"]
+    )
 
 
 if __name__ == "__main__":

@@ -30,7 +30,10 @@ class MonitoringHistoryService:
 
         prediction_drift = report[
             "prediction_drift"
-        ]["drift_detected"]
+        ].get(
+            "drift_detected",
+            False,
+        )
 
         entity = MonitoringHistory(
 

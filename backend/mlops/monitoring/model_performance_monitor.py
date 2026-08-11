@@ -15,6 +15,9 @@ from mlops.registry.model_registry import (
 
 class ModelPerformanceMonitor:
 
+    MIN_FEATURE_PRODUCTION_ROWS = 10
+    MIN_RECENT_PREDICTIONS = 10
+
     @staticmethod
     def monitor(
         model_name: str,
@@ -34,19 +37,67 @@ class ModelPerformanceMonitor:
             )
         )
 
-        feature_drift = (
-            FeatureDriftEngine.calculate(
-                training_features,
-                production_features,
-            )
+        feature_data_sufficient = (
+            len(production_features)
+            >= ModelPerformanceMonitor
+            .MIN_FEATURE_PRODUCTION_ROWS
         )
 
-        prediction_drift = (
-            PredictionDriftEngine.calculate(
-                historical_predictions,
-                recent_predictions,
-            )
+        prediction_data_sufficient = (
+            len(recent_predictions)
+            >= ModelPerformanceMonitor
+            .MIN_RECENT_PREDICTIONS
         )
+
+        if feature_data_sufficient:
+
+            feature_drift = (
+                FeatureDriftEngine.calculate(
+                    training_features,
+                    production_features,
+                )
+            )
+
+        else:
+
+            feature_drift = {}
+
+        if prediction_data_sufficient:
+
+            prediction_drift = (
+                PredictionDriftEngine.calculate(
+                    historical_predictions,
+                    recent_predictions,
+                )
+            )
+
+        else:
+
+            prediction_drift = {}
+
+        if (
+            not feature_data_sufficient
+            or not prediction_data_sufficient
+        ):
+
+            status = "insufficient_data"
+
+        elif (
+            any(
+                item["drift_detected"]
+                for item in feature_drift.values()
+            )
+            or prediction_drift.get(
+                "drift_detected",
+                False,
+            )
+        ):
+
+            status = "warning"
+
+        else:
+
+            status = "healthy"
 
         return {
 
@@ -62,16 +113,29 @@ class ModelPerformanceMonitor:
 
             "prediction_drift": prediction_drift,
 
-            "status": (
+            "status": status,
 
-                "healthy"
+            "data_quality": {
 
-                if not prediction_drift.get(
-                    "drift_detected",
-                    False,
-                )
+                "feature_production_rows":
+                    len(production_features),
 
-                else "warning"
+                "required_feature_rows":
+                    ModelPerformanceMonitor
+                    .MIN_FEATURE_PRODUCTION_ROWS,
 
-            ),
+                "recent_prediction_rows":
+                    len(recent_predictions),
+
+                "required_prediction_rows":
+                    ModelPerformanceMonitor
+                    .MIN_RECENT_PREDICTIONS,
+
+                "feature_data_sufficient":
+                    feature_data_sufficient,
+
+                "prediction_data_sufficient":
+                    prediction_data_sufficient,
+
+            },
         }

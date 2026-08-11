@@ -181,3 +181,38 @@ class OHLCVRepository:
             row[0]
             for row in rows
         ]
+        
+    def get_history_by_symbol_and_timeframe_between(
+        self,
+        symbol: str,
+        timeframe: str,
+        start_timestamp=None,
+        end_timestamp=None,
+    ):
+        query = (
+            self.db.query(
+                OHLCVData
+            )
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe,
+            )
+        )
+
+        if start_timestamp is not None:
+            query = query.filter(
+                OHLCVData.timestamp >= start_timestamp
+            )
+
+        if end_timestamp is not None:
+            query = query.filter(
+                OHLCVData.timestamp <= end_timestamp
+            )
+
+        return (
+            query
+            .order_by(
+                OHLCVData.timestamp
+            )
+            .all()
+        )
