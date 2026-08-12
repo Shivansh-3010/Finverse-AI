@@ -36,6 +36,11 @@ class PredictionEvaluation(Base):
         String(50),
         primary_key=True
     )
+    
+    horizon: Mapped[str] = mapped_column(
+        String(20),
+        primary_key=True
+    )
 
     predicted_return: Mapped[float] = mapped_column(
         Float

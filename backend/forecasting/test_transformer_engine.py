@@ -7,7 +7,9 @@ from forecasting.transformer_engine import (
 
 def test():
 
-    model = TransformerEngine()
+    model = TransformerEngine(
+        input_size=1
+    )
 
     sample = torch.randn(
         4,

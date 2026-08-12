@@ -56,10 +56,15 @@ class EvaluationMetricsEngine:
         if not evaluations:
             return 0.0
 
+        MAPE_EPSILON = 1e-4
+
         valid = [
             e
             for e in evaluations
-            if e.actual_return != 0
+            if (
+                abs(e.actual_return)
+                >= MAPE_EPSILON
+            )
         ]
 
         if not valid:
@@ -78,7 +83,7 @@ class EvaluationMetricsEngine:
             )
             / len(valid)
         ) * 100
-
+    
     @staticmethod
     def smape(evaluations):
 

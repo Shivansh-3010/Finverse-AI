@@ -82,6 +82,7 @@ class PredictionEvaluationService:
         db,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         repository = (
@@ -94,6 +95,7 @@ class PredictionEvaluationService:
             repository.get_history(
                 symbol=symbol,
                 timeframe=timeframe,
+                horizon=horizon,
             )
         )
 
@@ -102,6 +104,7 @@ class PredictionEvaluationService:
             return {
                 "symbol": symbol,
                 "timeframe": timeframe,
+                "horizon": horizon,
                 "overall": {},
                 "rolling": {},
                 "models": {},
@@ -126,6 +129,7 @@ class PredictionEvaluationService:
                 repository.get_recent_history(
                     symbol=symbol,
                     timeframe=timeframe,
+                    horizon=horizon,
                     limit=window,
                 )
             )
@@ -146,6 +150,7 @@ class PredictionEvaluationService:
             repository.get_available_models(
                 symbol=symbol,
                 timeframe=timeframe,
+                horizon=horizon,
             )
         ):
 
@@ -153,6 +158,7 @@ class PredictionEvaluationService:
                 repository.get_history_by_model(
                     symbol=symbol,
                     timeframe=timeframe,
+                    horizon=horizon,
                     model_name=model,
                 )
             )
@@ -180,6 +186,8 @@ class PredictionEvaluationService:
             "symbol": symbol,
 
             "timeframe": timeframe,
+            
+            "horizon": horizon,
 
             "overall": overall,
 

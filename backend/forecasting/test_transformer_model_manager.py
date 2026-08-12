@@ -9,7 +9,9 @@ from forecasting.transformer_model_manager import (
 
 def test():
 
-    model = TransformerEngine()
+    model = TransformerEngine(
+        input_size=1
+    )
 
     TransformerModelManager.save(
         model,
@@ -18,7 +20,9 @@ def test():
 
     loaded_model = (
         TransformerModelManager.load(
-            TransformerEngine(),
+            TransformerEngine(
+                input_size=1
+            ),
             "models/transformer/transformer_model.pt",
         )
     )

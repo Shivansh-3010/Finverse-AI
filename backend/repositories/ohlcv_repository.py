@@ -216,3 +216,24 @@ class OHLCVRepository:
             )
             .all()
         )
+        
+    def get_candles_at_or_after(
+        self,
+        symbol: str,
+        timeframe: str,
+        timestamp,
+        limit: int = 100,
+    ):
+        return (
+            self.db.query(OHLCVData)
+            .filter(
+                OHLCVData.symbol == symbol,
+                OHLCVData.timeframe == timeframe,
+                OHLCVData.timestamp >= timestamp,
+            )
+            .order_by(
+                OHLCVData.timestamp
+            )
+            .limit(limit)
+            .all()
+        )

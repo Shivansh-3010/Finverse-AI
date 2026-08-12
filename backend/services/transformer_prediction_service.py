@@ -51,7 +51,7 @@ class TransformerPredictionService:
         )
 
         scaler = ScalerManager.load(
-            "models/transformer/transformer_scaler.pkl",
+            f"models/transformer/{symbol.lower()}_transformer_scaler_{timeframe}.pkl",
         )
 
         dataset[feature_columns] = scaler.transform(
@@ -73,7 +73,7 @@ class TransformerPredictionService:
             TransformerEngine(
                 input_size=len(feature_columns),
             ),
-            "models/transformer/transformer_model.pt",
+            f"models/transformer/{symbol.lower()}_transformer_{timeframe}.pt",
         )
 
         with torch.no_grad():

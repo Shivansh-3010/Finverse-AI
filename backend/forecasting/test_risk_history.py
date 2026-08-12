@@ -44,8 +44,13 @@ def test_risk_history():
             )
 
             print(
-                "Volatility:",
-                latest.volatility
+                "Volatility 252d:",
+                latest.volatility_252d
+            )
+
+            print(
+                "Volatility 504d:",
+                latest.volatility_504d
             )
 
     finally:

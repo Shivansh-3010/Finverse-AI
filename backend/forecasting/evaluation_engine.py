@@ -9,12 +9,17 @@ from repositories.ohlcv_repository import (
 from services.prediction_evaluation_persistence_service import (
     PredictionEvaluationPersistenceService,
 )
+
 from repositories.prediction_evaluation_repository import (
     PredictionEvaluationRepository,
 )
 
 from forecasting.evaluation_metrics_engine import (
     EvaluationMetricsEngine,
+)
+
+from forecasting.horizons import (
+    HORIZON_DAYS,
 )
 
 from metrics.monitoring_metrics import (
@@ -28,7 +33,7 @@ class EvaluationEngine:
     def evaluate(
         db,
         symbol: str,
-        timeframe: str = "1d"
+        timeframe: str = "1d",
     ):
 
         predictions = (
@@ -42,44 +47,61 @@ class EvaluationEngine:
         if not predictions:
             return None
 
-        candles = (
+        ohlcv_repository = (
             OHLCVRepository(db)
-            .get_latest_by_symbol_and_timeframe(
-                symbol=symbol,
-                timeframe=timeframe,
-                limit=2
-            )
         )
-
-        if len(candles) < 2:
-            return None
-
-        previous_close = (
-            candles[1].close
-        )
-
-        latest_close = (
-            candles[0].close
-        )
-
-        actual_return = (
-            (
-                latest_close
-                - previous_close
-            )
-            /
-            previous_close
-        ) * 100
 
         saved = []
 
         for prediction in predictions:
+
+            horizon_days = HORIZON_DAYS.get(
+                prediction.horizon
+            )
+
+            if horizon_days is None:
+                continue
+
+            candles = (
+                ohlcv_repository
+                .get_candles_at_or_after(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    timestamp=prediction.timestamp,
+                    limit=horizon_days + 1,
+                )
+            )
+
+            if len(candles) < horizon_days + 1:
+                continue
+
+            reference_close = (
+                candles[0].close
+            )
+
+            future_close = (
+                candles[horizon_days].close
+            )
+
+            if reference_close == 0:
+                continue
+
+            actual_return = (
+                (
+                    future_close
+                    - reference_close
+                )
+                /
+                reference_close
+            ) * 100
 
             evaluation = (
                 PredictionEvaluationPersistenceService
                 .save_evaluation(
                     symbol=symbol,
                     timeframe=timeframe,
+                    prediction_timestamp=prediction.timestamp,
+                    horizon=prediction.horizon,
                     model_name=prediction.model_name,
                     predicted_return=prediction.prediction,
                     actual_return=actual_return,
@@ -87,12 +109,16 @@ class EvaluationEngine:
             )
 
             saved.append(evaluation)
-        
+
+        if not saved:
+            return None
+
         evaluations = (
             PredictionEvaluationRepository(db)
             .get_history(
-                symbol,
-                timeframe
+                symbol=symbol,
+                timeframe=timeframe,
+                horizon=saved[0].horizon,
             )
         )
 

@@ -8,7 +8,7 @@ from sklearn.metrics import (
 
 class MetricsEngine:
 
-    MAPE_EPSILON = 1e-4
+    MAPE_EPSILON = 0.01
 
     @staticmethod
     def mae(

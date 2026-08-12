@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from database.session import SessionLocal
 
@@ -17,6 +17,8 @@ class PredictionEvaluationPersistenceService:
     def save_evaluation(
         symbol: str,
         timeframe: str,
+        prediction_timestamp: datetime,
+        horizon: str,
         model_name: str,
         predicted_return: float,
         actual_return: float,
@@ -46,22 +48,17 @@ class PredictionEvaluationPersistenceService:
             entity = PredictionEvaluation(
                 symbol=symbol,
                 timeframe=timeframe,
-                timestamp=datetime.now(
-                    timezone.utc
-                ),
+                timestamp=prediction_timestamp,
                 model_name=model_name,
+                horizon=horizon,
 
-                predicted_return=
-                    predicted_return,
+                predicted_return=predicted_return,
 
-                actual_return=
-                    actual_return,
+                actual_return=actual_return,
 
-                absolute_error=
-                    absolute_error,
+                absolute_error=absolute_error,
 
-                directional_correct=
-                    directional_correct,
+                directional_correct=directional_correct,
             )
 
             return (

@@ -171,13 +171,11 @@ async def prediction_dashboard(
         data=result,
     )
     
-@router.get(
-    "/{symbol}/evaluation",
-    response_model=BaseResponse,
-)
+@router.get("/{symbol}/evaluation")
 async def prediction_evaluation(
     symbol: str,
     timeframe: str = "1d",
+    horizon: str = "1d",
 ):
 
     db = SessionLocal()
@@ -189,6 +187,7 @@ async def prediction_evaluation(
                 db=db,
                 symbol=symbol,
                 timeframe=timeframe,
+                horizon=horizon,
             )
         )
 

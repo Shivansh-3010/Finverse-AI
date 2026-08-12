@@ -37,6 +37,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         return (
@@ -49,6 +50,9 @@ class PredictionEvaluationRepository:
 
                 PredictionEvaluation.timeframe
                 == timeframe,
+                
+                PredictionEvaluation.horizon
+                == horizon,
             )
             .order_by(
                 desc(
@@ -62,6 +66,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         return (
@@ -74,6 +79,9 @@ class PredictionEvaluationRepository:
 
                 PredictionEvaluation.timeframe
                 == timeframe,
+                
+                PredictionEvaluation.horizon
+                == horizon,
             )
             .order_by(
                 PredictionEvaluation.timestamp
@@ -85,6 +93,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
         limit: int = 50,
         model_name: str | None = None,
     ):
@@ -99,6 +108,9 @@ class PredictionEvaluationRepository:
 
                 PredictionEvaluation.timeframe
                 == timeframe,
+                
+                PredictionEvaluation.horizon
+                == horizon,
             )
         )
 
@@ -130,6 +142,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
         model_name: str = "xgboost",
     ):
 
@@ -146,6 +159,9 @@ class PredictionEvaluationRepository:
 
                 PredictionEvaluation.model_name
                 == model_name,
+                
+                PredictionEvaluation.horizon
+                == horizon,
             )
             .order_by(
                 PredictionEvaluation.timestamp
@@ -157,6 +173,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
         model_name: str = "xgboost",
         limit: int = 50,
     ):
@@ -164,6 +181,7 @@ class PredictionEvaluationRepository:
         return self.get_recent_history(
             symbol=symbol,
             timeframe=timeframe,
+            horizon=horizon,
             model_name=model_name,
             limit=limit,
         )
@@ -172,6 +190,7 @@ class PredictionEvaluationRepository:
         self,
         symbol: str,
         timeframe: str = "1d",
+        horizon: str = "1d",
     ):
 
         rows = (
@@ -184,6 +203,9 @@ class PredictionEvaluationRepository:
 
                 PredictionEvaluation.timeframe
                 == timeframe,
+                
+                PredictionEvaluation.horizon
+                == horizon,
             )
             .distinct()
             .all()
