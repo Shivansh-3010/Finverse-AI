@@ -1,7 +1,10 @@
 import numpy as np
+from scipy.stats import ks_2samp
 
 
 class FeatureDriftEngine:
+
+    SIGNIFICANCE_LEVEL = 0.05
 
     @staticmethod
     def calculate(
@@ -9,8 +12,11 @@ class FeatureDriftEngine:
         production_data,
     ):
         """
-        Computes simple feature drift based on
-        mean and standard deviation changes.
+        Compare training and production feature
+        distributions using the two-sample KS test.
+
+        The returned drift_score is the KS statistic,
+        which is normalized between 0 and 1.
         """
 
         report = {}
@@ -24,66 +30,127 @@ class FeatureDriftEngine:
                 training_data[column]
                 .dropna()
                 .astype(float)
+                .to_numpy()
             )
 
             prod = (
                 production_data[column]
                 .dropna()
                 .astype(float)
+                .to_numpy()
             )
 
             if len(train) == 0 or len(prod) == 0:
                 continue
 
-            train_mean = float(train.mean())
-            prod_mean = float(prod.mean())
+            training_mean = float(
+                np.mean(train)
+            )
 
-            train_std = float(train.std())
-            prod_std = float(prod.std())
+            production_mean = float(
+                np.mean(prod)
+            )
+
+            training_std = float(
+                np.std(train)
+            )
+
+            production_std = float(
+                np.std(prod)
+            )
 
             mean_shift = abs(
-                prod_mean - train_mean
+                production_mean
+                - training_mean
             )
 
             std_shift = abs(
-                prod_std - train_std
+                production_std
+                - training_std
             )
 
-            drift_score = (
-                mean_shift +
-                std_shift
+            ks_result = ks_2samp(
+                train,
+                prod,
             )
+
+            ks_statistic = float(
+                ks_result.statistic
+            )
+
+            p_value = float(
+                ks_result.pvalue
+            )
+
+            drift_detected = (
+                p_value
+                < FeatureDriftEngine
+                .SIGNIFICANCE_LEVEL
+            )
+
+            if ks_statistic < 0.10:
+                severity = "LOW"
+
+            elif ks_statistic < 0.25:
+                severity = "MEDIUM"
+
+            elif ks_statistic < 0.50:
+                severity = "HIGH"
+
+            else:
+                severity = "CRITICAL"
 
             report[column] = {
 
                 "training_mean": round(
-                    train_mean,
+                    training_mean,
                     4,
                 ),
 
                 "production_mean": round(
-                    prod_mean,
+                    production_mean,
                     4,
                 ),
 
                 "training_std": round(
-                    train_std,
+                    training_std,
                     4,
                 ),
 
                 "production_std": round(
-                    prod_std,
+                    production_std,
                     4,
+                ),
+
+                "mean_shift": round(
+                    mean_shift,
+                    4,
+                ),
+
+                "std_shift": round(
+                    std_shift,
+                    4,
+                ),
+
+                "ks_statistic": round(
+                    ks_statistic,
+                    4,
+                ),
+
+                "p_value": round(
+                    p_value,
+                    6,
                 ),
 
                 "drift_score": round(
-                    drift_score,
+                    ks_statistic,
                     4,
                 ),
 
-                "drift_detected": (
-                    drift_score > 1.0
-                ),
+                "severity": severity,
+
+                "drift_detected":
+                    drift_detected,
             }
 
         return report
