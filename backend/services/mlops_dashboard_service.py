@@ -44,17 +44,37 @@ class MLOpsDashboardService:
                 model_name=model_name,
                 symbol=symbol,
                 horizon=horizon,
+
                 training_features=data[
                     "training_features"
                 ],
+
                 production_features=data[
                     "production_features"
                 ],
+
                 historical_predictions=data[
                     "historical_predictions"
                 ],
+
                 recent_predictions=data[
                     "recent_predictions"
+                ],
+
+                historical_evaluations=data[
+                    "historical_evaluations"
+                ],
+
+                recent_evaluations=data[
+                    "recent_evaluations"
+                ],
+
+                historical_targets=data[
+                    "historical_targets"
+                ],
+
+                recent_targets=data[
+                    "recent_targets"
                 ],
             )
         )
@@ -104,5 +124,4 @@ class MLOpsDashboardService:
 
             "selected_model":
                 report,
-
         }

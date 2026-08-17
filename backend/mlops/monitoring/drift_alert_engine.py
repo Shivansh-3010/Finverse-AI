@@ -11,9 +11,12 @@ class DriftAlertEngine:
         # Feature Drift
         # -------------------------
 
-        for feature, values in model_report[
-            "feature_drift"
-        ].items():
+        feature_drift = model_report.get(
+            "feature_drift",
+            {},
+        )
+
+        for feature, values in feature_drift.items():
 
             if values.get(
                 "drift_detected",
@@ -37,9 +40,10 @@ class DriftAlertEngine:
         # Prediction Drift
         # -------------------------
 
-        prediction = model_report[
-            "prediction_drift"
-        ]
+        prediction = model_report.get(
+            "prediction_drift",
+            {},
+        )
 
         if prediction.get(
             "drift_detected",
@@ -54,6 +58,78 @@ class DriftAlertEngine:
 
                 "message":
                     "Prediction distribution has drifted.",
+
+            })
+
+        # -------------------------
+        # Model Drift
+        # -------------------------
+
+        model_drift = model_report.get(
+            "model_drift",
+            {},
+        )
+
+        if model_drift.get(
+            "drift_detected",
+            False,
+        ):
+
+            severity = model_drift.get(
+                "severity",
+                "HIGH",
+            )
+
+            if severity == "UNKNOWN":
+                severity = "HIGH"
+
+            alerts.append({
+
+                "severity": severity,
+
+                "type": "Model Drift",
+
+                "message":
+                    (
+                        "Model performance has "
+                        "degraded."
+                    ),
+
+            })
+
+        # -------------------------
+        # Target Drift
+        # -------------------------
+
+        target_drift = model_report.get(
+            "target_drift",
+            {},
+        )
+
+        if target_drift.get(
+            "drift_detected",
+            False,
+        ):
+
+            severity = target_drift.get(
+                "severity",
+                "HIGH",
+            )
+
+            if severity == "UNKNOWN":
+                severity = "HIGH"
+
+            alerts.append({
+
+                "severity": severity,
+
+                "type": "Target Drift",
+
+                "message":
+                    (
+                        "Target distribution has "
+                        "shifted."
+                    ),
 
             })
 
@@ -99,11 +175,11 @@ class DriftAlertEngine:
         # -------------------------
 
         if any(
-
-            alert["severity"] == "HIGH"
-
+            alert["severity"] in {
+                "HIGH",
+                "CRITICAL",
+            }
             for alert in alerts
-
         ):
 
             alerts.append({

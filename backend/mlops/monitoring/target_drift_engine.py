@@ -3,30 +3,30 @@ import numpy as np
 from scipy.stats import ks_2samp
 
 
-class PredictionDriftEngine:
+class TargetDriftEngine:
 
     SIGNIFICANCE_LEVEL = 0.05
 
     @staticmethod
     def calculate(
-        historical_predictions,
-        recent_predictions,
+        historical_targets,
+        recent_targets,
     ):
         """
-        Compare historical and recent prediction
+        Compare historical and recent target
         distributions using the two-sample KS test.
 
-        The drift score is the KS statistic and is
-        normalized between 0 and 1.
+        For FinVerse, the target represents actual
+        realized returns.
         """
 
         historical = np.asarray(
-            historical_predictions,
+            historical_targets,
             dtype=float,
         )
 
         recent = np.asarray(
-            recent_predictions,
+            recent_targets,
             dtype=float,
         )
 
@@ -85,7 +85,7 @@ class PredictionDriftEngine:
 
         drift_detected = (
             p_value
-            < PredictionDriftEngine
+            < TargetDriftEngine
             .SIGNIFICANCE_LEVEL
         )
 

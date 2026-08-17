@@ -58,6 +58,21 @@ class MonitoringScheduler:
                 recent_predictions=data[
                     "recent_predictions"
                 ],
+                historical_evaluations=data[
+                    "historical_evaluations"
+                ],
+
+                recent_evaluations=data[
+                    "recent_evaluations"
+                ],
+
+                historical_targets=data[
+                    "historical_targets"
+                ],
+
+                recent_targets=data[
+                    "recent_targets"
+                ],
             )
         )
 

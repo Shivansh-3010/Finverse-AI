@@ -17,6 +17,10 @@ from repositories.prediction_repository import (
     PredictionRepository,
 )
 
+from repositories.prediction_evaluation_repository import (
+    PredictionEvaluationRepository,
+)
+
 
 class MonitoringDataService:
 
@@ -180,6 +184,29 @@ class MonitoringDataService:
 
             repository = (
                 PredictionRepository(db)
+            )    
+            
+            evaluation_repository = (
+                PredictionEvaluationRepository(db)
+            )      
+
+            historical_evaluation_rows = (
+                evaluation_repository.get_history_by_model(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    horizon=horizon,
+                    model_name=model_name,
+                )
+            )
+
+            recent_evaluation_rows = (
+                evaluation_repository.get_recent_history_by_model(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    horizon=horizon,
+                    model_name=model_name,
+                    limit=recent_prediction_limit,
+                )
             )
 
             historical_rows = (
@@ -251,6 +278,19 @@ class MonitoringDataService:
                     len(
                         recent_predictions
                     ),
+                    
+                "historical_evaluations": historical_evaluation_rows,
+                "recent_evaluations": recent_evaluation_rows,
+
+                "historical_targets": [
+                    float(e.actual_return)
+                    for e in historical_evaluation_rows
+                ],
+
+                "recent_targets": [
+                    float(e.actual_return)
+                    for e in recent_evaluation_rows
+                ],
             }
 
         finally:

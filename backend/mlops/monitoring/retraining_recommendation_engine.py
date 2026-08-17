@@ -21,6 +21,16 @@ class RetrainingRecommendationEngine:
             {},
         )
 
+        model_drift = report.get(
+            "model_drift",
+            {},
+        )
+
+        target_drift = report.get(
+            "target_drift",
+            {},
+        )
+
         registry = report.get(
             "registry",
             {},
@@ -65,6 +75,36 @@ class RetrainingRecommendationEngine:
 
             reasons.append(
                 "Prediction Drift"
+            )
+
+            recommend = True
+
+        # -----------------------------
+        # Model Drift
+        # -----------------------------
+
+        if model_drift.get(
+            "drift_detected",
+            False,
+        ):
+
+            reasons.append(
+                "Model Drift"
+            )
+
+            recommend = True
+
+        # -----------------------------
+        # Target Drift
+        # -----------------------------
+
+        if target_drift.get(
+            "drift_detected",
+            False,
+        ):
+
+            reasons.append(
+                "Target Drift"
             )
 
             recommend = True
