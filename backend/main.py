@@ -23,6 +23,13 @@ from api.v1.mlops.router import (
 from api.v1.predictions.router import (
     router as predictions_router
 )
+from api.v1.portfolios.router import (
+    router as portfolios_router,
+)
+from api.v1.holdings.router import (
+    router as holdings_router,
+)
+
 from scheduler.market_data_scheduler import (
     start_scheduler as start_market_scheduler,
     stop_scheduler as stop_market_scheduler,
@@ -105,6 +112,16 @@ app.include_router(
     mlops_router,
     prefix="/api/v1/mlops",
     tags=["MLOps"],
+)
+app.include_router(
+    portfolios_router,
+    prefix="/api/v1/portfolios",
+    tags=["Portfolios"],
+)
+app.include_router(
+    holdings_router,
+    prefix="/api/v1/holdings",
+    tags=["Holdings"],
 )
 
 @app.on_event("startup")
