@@ -23,6 +23,10 @@ from models.user import User
 from models.user_profile import UserProfile
 from models.portfolio import Portfolio
 from models.holding import Holding
+from models.portfolio_transaction import PortfolioTransaction
+from models.prediction import Prediction
+from models.prediction_evaluation import PredictionEvaluation
+from models.monitoring_history import MonitoringHistory
 from models.watchlist import Watchlist
 from models.recommendation import Recommendation
 from models.agent_output import AgentOutput
@@ -99,4 +103,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

@@ -60,6 +60,14 @@ def test():
             production_features=production,
             historical_predictions=historical_predictions,
             recent_predictions=recent_predictions,
+
+            # Phase 11 model-drift inputs
+            historical_evaluations=[],
+            recent_evaluations=[],
+
+            # Phase 11 target-drift inputs
+            historical_targets=[],
+            recent_targets=[],
         )
     )
 
