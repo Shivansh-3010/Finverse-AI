@@ -44,6 +44,7 @@ from models.support_resistance import (
 from models.news_article import (
     NewsArticle
 )
+from models.portfolio_snapshot import PortfolioSnapshot
 
 target_metadata = Base.metadata
 

@@ -10,6 +10,7 @@ from schemas.portfolio import (
 from services.portfolio_service import (
     portfolio_service,
 )
+from decimal import Decimal
 from datetime import datetime
 from uuid import UUID
 
@@ -22,6 +23,12 @@ from schemas.portfolio_transaction import (
 
 from services.portfolio_transaction_service import (
     portfolio_transaction_service,
+)
+from services.portfolio_summary_service import (
+    portfolio_summary_service,
+)
+from services.portfolio_snapshot_service import (
+    portfolio_snapshot_service,
 )
 
 
@@ -216,4 +223,146 @@ async def get_transactions_by_date_range(
             .model_dump()
             for transaction in transactions
         ],
+    )
+    
+@router.get(
+    "/{portfolio_id}/summary",
+    response_model=BaseResponse,
+)
+async def get_portfolio_summary(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    result = (
+        portfolio_summary_service.calculate(
+            db=db,
+            portfolio_id=portfolio_id,
+            timeframe=timeframe,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio summary retrieved",
+        data=result,
+    )
+    
+@router.post(
+    "/{portfolio_id}/snapshots",
+    response_model=BaseResponse,
+)
+async def create_portfolio_snapshot(
+    portfolio_id: UUID,
+    snapshot_time: datetime,
+    portfolio_value: Decimal,
+    cash: Decimal,
+    invested_value: Decimal,
+    return_value: Decimal,
+    risk_score: Decimal | None = None,
+    db: Session = Depends(get_db),
+):
+    try:
+        snapshot = (
+            portfolio_snapshot_service.create(
+                db=db,
+                portfolio_id=portfolio_id,
+                snapshot_time=snapshot_time,
+                portfolio_value=portfolio_value,
+                cash=cash,
+                invested_value=invested_value,
+                return_value=return_value,
+                risk_score=risk_score,
+            )
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio snapshot created",
+        data={
+            "id": str(snapshot.id),
+            "portfolio_id": str(snapshot.portfolio_id),
+            "snapshot_time": snapshot.snapshot_time,
+            "portfolio_value": snapshot.portfolio_value,
+            "cash": snapshot.cash,
+            "invested_value": snapshot.invested_value,
+            "return_value": snapshot.return_value,
+            "risk_score": snapshot.risk_score,
+        },
+    )
+
+
+@router.get(
+    "/{portfolio_id}/snapshots",
+    response_model=BaseResponse,
+)
+async def get_portfolio_snapshots(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    snapshots = (
+        portfolio_snapshot_service.get_by_portfolio(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio snapshots retrieved",
+        data=[
+            {
+                "id": str(snapshot.id),
+                "portfolio_id": str(snapshot.portfolio_id),
+                "snapshot_time": snapshot.snapshot_time,
+                "portfolio_value": snapshot.portfolio_value,
+                "cash": snapshot.cash,
+                "invested_value": snapshot.invested_value,
+                "return_value": snapshot.return_value,
+                "risk_score": snapshot.risk_score,
+            }
+            for snapshot in snapshots
+        ],
+    )
+
+
+@router.get(
+    "/{portfolio_id}/snapshots/latest",
+    response_model=BaseResponse,
+)
+async def get_latest_portfolio_snapshot(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    snapshot = (
+        portfolio_snapshot_service.get_latest(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    if snapshot is None:
+        raise HTTPException(
+            status_code=404,
+            detail="No portfolio snapshot found",
+        )
+
+    return BaseResponse(
+        success=True,
+        message="Latest portfolio snapshot retrieved",
+        data={
+            "id": str(snapshot.id),
+            "portfolio_id": str(snapshot.portfolio_id),
+            "snapshot_time": snapshot.snapshot_time,
+            "portfolio_value": snapshot.portfolio_value,
+            "cash": snapshot.cash,
+            "invested_value": snapshot.invested_value,
+            "return_value": snapshot.return_value,
+            "risk_score": snapshot.risk_score,
+        },
     )
