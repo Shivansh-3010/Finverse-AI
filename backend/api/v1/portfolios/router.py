@@ -30,6 +30,18 @@ from services.portfolio_summary_service import (
 from services.portfolio_snapshot_service import (
     portfolio_snapshot_service,
 )
+from services.portfolio_twr_service import (
+    portfolio_twr_service,
+)
+from services.portfolio_risk_service import (
+    portfolio_risk_service,
+)
+from services.portfolio_performance_service import (
+    portfolio_performance_service,
+)
+from services.portfolio_xirr_service import (
+    portfolio_xirr_service,
+)
 
 
 router = APIRouter()
@@ -365,4 +377,88 @@ async def get_latest_portfolio_snapshot(
             "return_value": snapshot.return_value,
             "risk_score": snapshot.risk_score,
         },
+    )
+    
+@router.get(
+    "/{portfolio_id}/twr",
+    response_model=BaseResponse,
+)
+async def get_portfolio_twr(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    result = (
+        portfolio_twr_service.calculate(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio TWR calculated",
+        data=result,
+    )
+    
+@router.get(
+    "/{portfolio_id}/risk",
+    response_model=BaseResponse,
+)
+async def get_portfolio_risk(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    result = (
+        portfolio_risk_service.calculate(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio risk calculated",
+        data=result,
+    )
+    
+@router.get(
+    "/{portfolio_id}/performance",
+    response_model=BaseResponse,
+)
+async def get_portfolio_performance(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    result = (
+        portfolio_performance_service.calculate(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio performance calculated",
+        data=result,
+    )
+    
+@router.get(
+    "/{portfolio_id}/xirr",
+    response_model=BaseResponse,
+)
+async def get_portfolio_xirr(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    result = (
+        portfolio_xirr_service.calculate(
+            db=db,
+            portfolio_id=portfolio_id,
+        )
+    )
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio XIRR calculated",
+        data=result,
     )

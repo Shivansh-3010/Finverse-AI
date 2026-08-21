@@ -8,6 +8,9 @@ from repositories.ohlcv_repository import (
 from services.holding_service import (
     holding_service,
 )
+from services.portfolio_performance_service import (
+    portfolio_performance_service,
+)
 
 def _money(value: Decimal) -> Decimal:
     return value.quantize(
@@ -38,6 +41,15 @@ class PortfolioValuationService:
                 portfolio_id,
             )
         )
+        
+        performance = (
+            portfolio_performance_service.calculate(
+                db=db,
+                portfolio_id=portfolio_id,
+            )
+        )
+
+        cash_balance = performance["cash_balance"]
 
         ohlcv_repository = OHLCVRepository(db)
 
@@ -108,6 +120,11 @@ class PortfolioValuationService:
             total_market_value
             - total_cost_basis
         )
+        
+        total_portfolio_value = _money(
+            total_market_value
+            + cash_balance
+        )
 
         portfolio_return_pct = _percentage(
             (
@@ -151,6 +168,11 @@ class PortfolioValuationService:
             "positions": positions,
             "total_cost_basis": total_cost_basis,
             "total_market_value": total_market_value,
+            "cash_balance": _money(
+                cash_balance
+            ),
+
+            "total_portfolio_value": total_portfolio_value,
             "unrealized_pnl": portfolio_unrealized_pnl,
             "unrealized_return_pct":
                 portfolio_return_pct,

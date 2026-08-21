@@ -155,6 +155,15 @@ class PortfolioTransactionService:
                 raise ValueError(
                     "Dividend amount must be greater than zero"
                 )
+        
+        if transaction_type in {
+            TransactionType.DEPOSIT.value,
+            TransactionType.WITHDRAWAL.value,
+        }:
+            if data.amount <= Decimal("0"):
+                raise ValueError(
+                    f"{transaction_type} amount must be greater than zero"
+                )
 
 
 portfolio_transaction_service = (

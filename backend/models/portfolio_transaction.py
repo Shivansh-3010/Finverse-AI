@@ -17,6 +17,8 @@ class TransactionType(str, Enum):
     DIVIDEND = "DIVIDEND"
     SPLIT = "SPLIT"
     BONUS = "BONUS"
+    DEPOSIT = "DEPOSIT"
+    WITHDRAWAL = "WITHDRAWAL"
 
 
 class PortfolioTransaction(

@@ -38,8 +38,17 @@ class PortfolioPerformanceService:
 
         realized_pnl = Decimal("0")
         dividend_income = Decimal("0")
+
         total_bought = Decimal("0")
         total_sold = Decimal("0")
+
+        total_deposited = Decimal("0")
+        total_withdrawn = Decimal("0")
+
+        # Cash ledger.
+        # Positive values increase available cash.
+        # Negative values decrease available cash.
+        cash_balance = Decimal("0")
 
         for transaction in transactions:
 
@@ -54,6 +63,9 @@ class PortfolioPerformanceService:
 
             position = positions[symbol]
 
+            # --------------------------------------------------
+            # BUY
+            # --------------------------------------------------
             if transaction_type == TransactionType.BUY.value:
 
                 quantity = transaction.quantity or Decimal("0")
@@ -64,6 +76,12 @@ class PortfolioPerformanceService:
 
                 total_bought += amount
 
+                # Buying securities consumes cash.
+                cash_balance -= amount
+
+            # --------------------------------------------------
+            # SELL
+            # --------------------------------------------------
             elif transaction_type == TransactionType.SELL.value:
 
                 quantity = transaction.quantity or Decimal("0")
@@ -99,10 +117,22 @@ class PortfolioPerformanceService:
 
                 total_sold += amount
 
+                # Selling securities generates cash.
+                cash_balance += amount
+
+            # --------------------------------------------------
+            # DIVIDEND
+            # --------------------------------------------------
             elif transaction_type == TransactionType.DIVIDEND.value:
 
                 dividend_income += transaction.amount
 
+                # Dividends generate cash.
+                cash_balance += transaction.amount
+
+            # --------------------------------------------------
+            # SPLIT
+            # --------------------------------------------------
             elif transaction_type == TransactionType.SPLIT.value:
 
                 quantity = transaction.quantity or Decimal("0")
@@ -110,12 +140,39 @@ class PortfolioPerformanceService:
                 if quantity > Decimal("0"):
                     position["quantity"] += quantity
 
+            # --------------------------------------------------
+            # BONUS
+            # --------------------------------------------------
             elif transaction_type == TransactionType.BONUS.value:
 
                 quantity = transaction.quantity or Decimal("0")
 
                 if quantity > Decimal("0"):
                     position["quantity"] += quantity
+
+            # --------------------------------------------------
+            # DEPOSIT
+            # --------------------------------------------------
+            elif transaction_type == TransactionType.DEPOSIT.value:
+
+                total_deposited += transaction.amount
+
+                # Deposits add cash.
+                cash_balance += transaction.amount
+
+            # --------------------------------------------------
+            # WITHDRAWAL
+            # --------------------------------------------------
+            elif transaction_type == TransactionType.WITHDRAWAL.value:
+
+                total_withdrawn += transaction.amount
+
+                # Withdrawals consume cash.
+                cash_balance -= transaction.amount
+
+        # ------------------------------------------------------
+        # Active positions
+        # ------------------------------------------------------
 
         active_positions = {}
 
@@ -140,14 +197,20 @@ class PortfolioPerformanceService:
                     ),
                 }
 
+        # ------------------------------------------------------
+        # Returns
+        # ------------------------------------------------------
+
         total_realized_return = (
             realized_pnl + dividend_income
         )
-        
+
         net_cash_flow = (
-            total_sold
-            + dividend_income
+            total_deposited
+            - total_withdrawn
             - total_bought
+            + total_sold
+            + dividend_income
         )
 
         return {
@@ -174,12 +237,41 @@ class PortfolioPerformanceService:
             "total_realized_return": _money(
                 total_realized_return
             ),
-            
+
+            "positions": active_positions,
+
+            "total_deposited": _money(
+                total_deposited
+            ),
+
+            "total_withdrawn": _money(
+                total_withdrawn
+            ),
+
+            "net_external_cash_flow": _money(
+                total_deposited - total_withdrawn
+            ),
+
+            "trading_cash_flow": _money(
+                -total_bought
+                + total_sold
+                + dividend_income
+            ),
+
             "net_cash_flow": _money(
                 net_cash_flow
             ),
 
-            "positions": active_positions,
+            "cash_balance": _money(
+                cash_balance
+            ),
+
+            "unfunded_cash": _money(
+                max(
+                    Decimal("0"),
+                    -cash_balance,
+                )
+            ),
         }
 
 
