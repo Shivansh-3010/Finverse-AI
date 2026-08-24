@@ -8,6 +8,7 @@ from services.portfolio_performance_service import (
 from services.portfolio_valuation_service import (
     portfolio_valuation_service,
 )
+from services.portfolio_beta_service import portfolio_beta_service
 
 
 class PortfolioSummaryService:
@@ -33,6 +34,14 @@ class PortfolioSummaryService:
                 db=db,
                 portfolio_id=portfolio_id,
             )
+        )
+        
+        beta = portfolio_beta_service.calculate(
+            db,
+            portfolio_id,
+            benchmark_symbol="NIFTY50",
+            timeframe="1d",
+            lookback_days=30,
         )
 
         return {
@@ -85,6 +94,7 @@ class PortfolioSummaryService:
             "net_cash_flow": (
                 performance["net_cash_flow"]
             ),
+            "beta": beta,
         }
 
 

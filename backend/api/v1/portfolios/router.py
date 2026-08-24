@@ -1,20 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from database.session import SessionLocal
+from database.session import SessionLocal, get_db
 from schemas.base_response import BaseResponse
 from schemas.portfolio import (
     PortfolioCreate,
     PortfolioResponse,
+    PortfolioBetaResponse,
 )
+from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
     portfolio_service,
 )
 from decimal import Decimal
 from datetime import datetime
 from uuid import UUID
-
-from fastapi import HTTPException
 
 from schemas.portfolio_transaction import (
     PortfolioTransactionCreate,
@@ -42,6 +42,7 @@ from services.portfolio_performance_service import (
 from services.portfolio_xirr_service import (
     portfolio_xirr_service,
 )
+from services.portfolio_valuation_service import portfolio_valuation_service
 
 
 router = APIRouter()
@@ -462,3 +463,46 @@ async def get_portfolio_xirr(
         message="Portfolio XIRR calculated",
         data=result,
     )
+    
+@router.get(
+    "/{portfolio_id}/beta",
+    response_model=PortfolioBetaResponse,
+)
+def get_portfolio_beta(
+    portfolio_id: UUID,
+    benchmark: str = Query(
+        default="NIFTY50"
+    ),
+    timeframe: str = Query(
+        default="1d"
+    ),
+    lookback_days: int = Query(
+        default=30,
+        ge=2,
+    ),
+    db: Session = Depends(get_db),
+):
+    result = portfolio_beta_service.calculate(
+        db,
+        portfolio_id,
+        benchmark_symbol=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+    return result
+    
+@router.get(
+    "/{portfolio_id}/valuation",
+)
+def get_portfolio_valuation(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    return portfolio_valuation_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+    )
+    

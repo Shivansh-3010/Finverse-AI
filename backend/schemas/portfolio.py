@@ -25,3 +25,14 @@ class PortfolioResponse(BaseModel):
     total_value: Decimal
     created_at: datetime
     updated_at: datetime
+
+class PortfolioBetaResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    beta: Decimal | None = None
+    observation_count: int
+    portfolio_return_mean: Decimal | None = None
+    benchmark_return_mean: Decimal | None = None
+    message: str | None = None
