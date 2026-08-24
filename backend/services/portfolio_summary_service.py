@@ -9,6 +9,9 @@ from services.portfolio_valuation_service import (
     portfolio_valuation_service,
 )
 from services.portfolio_beta_service import portfolio_beta_service
+from services.portfolio_risk_adjusted_service import (
+    portfolio_risk_adjusted_service,
+)
 
 
 class PortfolioSummaryService:
@@ -40,6 +43,14 @@ class PortfolioSummaryService:
             db,
             portfolio_id,
             benchmark_symbol="NIFTY50",
+            timeframe="1d",
+            lookback_days=30,
+        )
+        
+        risk_adjusted = portfolio_risk_adjusted_service.calculate(
+            db,
+            portfolio_id,
+            benchmark="NIFTY50",
             timeframe="1d",
             lookback_days=30,
         )
@@ -95,6 +106,7 @@ class PortfolioSummaryService:
                 performance["net_cash_flow"]
             ),
             "beta": beta,
+            "risk_adjusted": risk_adjusted,
         }
 
 

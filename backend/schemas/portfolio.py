@@ -36,3 +36,22 @@ class PortfolioBetaResponse(BaseModel):
     portfolio_return_mean: Decimal | None = None
     benchmark_return_mean: Decimal | None = None
     message: str | None = None
+    
+class PortfolioRiskAdjustedResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    observation_count: int
+
+    sharpe_ratio: Decimal | None = None
+    sortino_ratio: Decimal | None = None
+    treynor_ratio: Decimal | None = None
+    alpha: Decimal | None = None
+    tracking_error: Decimal | None = None
+
+    portfolio_return_mean: Decimal | None = None
+    benchmark_return_mean: Decimal | None = None
+    beta: Decimal | None = None
+
+    message: str | None = None

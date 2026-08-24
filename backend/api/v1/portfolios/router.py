@@ -7,6 +7,7 @@ from schemas.portfolio import (
     PortfolioCreate,
     PortfolioResponse,
     PortfolioBetaResponse,
+    PortfolioRiskAdjustedResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -43,7 +44,9 @@ from services.portfolio_xirr_service import (
     portfolio_xirr_service,
 )
 from services.portfolio_valuation_service import portfolio_valuation_service
-
+from services.portfolio_risk_adjusted_service import (
+    portfolio_risk_adjusted_service,
+)
 
 router = APIRouter()
 
@@ -506,3 +509,21 @@ def get_portfolio_valuation(
         timeframe=timeframe,
     )
     
+@router.get(
+    "/{portfolio_id}/risk-adjusted",
+    response_model=PortfolioRiskAdjustedResponse,
+)
+def get_portfolio_risk_adjusted(
+    portfolio_id: UUID,
+    benchmark: str = Query(default="NIFTY50"),
+    timeframe: str = Query(default="1d"),
+    lookback_days: int = Query(default=30, ge=2),
+    db: Session = Depends(get_db),
+):
+    return portfolio_risk_adjusted_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
