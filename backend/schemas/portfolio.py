@@ -55,3 +55,27 @@ class PortfolioRiskAdjustedResponse(BaseModel):
     beta: Decimal | None = None
 
     message: str | None = None
+    
+class PortfolioAttributionPositionResponse(BaseModel):
+    symbol: str
+    quantity: Decimal
+    cost_basis: Decimal
+    portfolio_weight_pct: Decimal
+    start_price: Decimal | None = None
+    end_price: Decimal | None = None
+    return_pct: Decimal | None = None
+    pnl: Decimal | None = None
+    return_contribution_pct: Decimal | None = None
+    message: str | None = None
+
+
+class PortfolioAttributionResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    position_count: int
+    total_cost_basis: Decimal
+    portfolio_return: Decimal | None = None
+    total_pnl_contribution: Decimal
+    positions: list[PortfolioAttributionPositionResponse]
+    message: str | None = None
