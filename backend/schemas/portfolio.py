@@ -97,3 +97,12 @@ class PortfolioExposureResponse(BaseModel):
     herfindahl_index: Decimal
     exposures: list[PortfolioExposurePositionResponse]
     message: str | None = None
+    
+class PortfolioCorrelationResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    symbols: list[str]
+    observation_count: int
+    matrix: dict[str, dict[str, Decimal | None]]
+    message: str | None = None
