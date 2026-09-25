@@ -79,3 +79,21 @@ class PortfolioAttributionResponse(BaseModel):
     total_pnl_contribution: Decimal
     positions: list[PortfolioAttributionPositionResponse]
     message: str | None = None
+    
+class PortfolioExposurePositionResponse(BaseModel):
+    symbol: str
+    market_value: Decimal
+    portfolio_weight_pct: Decimal
+    unrealized_pnl: Decimal
+    unrealized_return_pct: Decimal
+
+
+class PortfolioExposureResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    position_count: int
+    total_market_value: Decimal
+    largest_position: PortfolioExposurePositionResponse | None = None
+    herfindahl_index: Decimal
+    exposures: list[PortfolioExposurePositionResponse]
+    message: str | None = None

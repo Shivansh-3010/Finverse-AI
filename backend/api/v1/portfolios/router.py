@@ -9,6 +9,7 @@ from schemas.portfolio import (
     PortfolioBetaResponse,
     PortfolioRiskAdjustedResponse,
     PortfolioAttributionResponse,
+    PortfolioExposureResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -50,6 +51,9 @@ from services.portfolio_risk_adjusted_service import (
 )
 from services.portfolio_attribution_service import (
     portfolio_attribution_service,
+)
+from services.portfolio_exposure_service import (
+    portfolio_exposure_service,
 )
 
 router = APIRouter()
@@ -552,4 +556,21 @@ def get_portfolio_attribution(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/exposure",
+    response_model=PortfolioExposureResponse,
+)
+def get_portfolio_exposure(
+    portfolio_id: UUID,
+    timeframe: str = Query(
+        default="1d",
+    ),
+    db: Session = Depends(get_db),
+):
+    return portfolio_exposure_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
     )
