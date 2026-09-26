@@ -12,6 +12,7 @@ from schemas.portfolio import (
     PortfolioExposureResponse,
     PortfolioCorrelationResponse,
     PortfolioDiversificationResponse,
+    PortfolioFactorExposureResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -62,6 +63,9 @@ from services.portfolio_correlation_service import (
 )
 from services.portfolio_diversification_service import (
     portfolio_diversification_service,
+)
+from services.portfolio_factor_exposure_service import (
+    portfolio_factor_exposure_service,
 )
 
 router = APIRouter()
@@ -625,4 +629,21 @@ def get_portfolio_diversification(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
+    )
+
+@router.get(
+    "/{portfolio_id}/factor-exposure",
+    response_model=PortfolioFactorExposureResponse,
+)
+def get_portfolio_factor_exposure(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    return portfolio_factor_exposure_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark_symbol=benchmark,
+        timeframe=timeframe,
     )

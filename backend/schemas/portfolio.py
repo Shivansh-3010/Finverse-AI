@@ -124,3 +124,36 @@ class PortfolioDiversificationResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+    
+class PortfolioFactorExposurePositionResponse(BaseModel):
+    symbol: str
+    portfolio_weight_pct: Decimal
+    market_beta: Decimal | None = None
+    momentum_pct: Decimal | None = None
+    realized_volatility_pct: Decimal | None = None
+    average_daily_traded_value: Decimal | None = None
+
+
+class PortfolioFactorExposureSummaryResponse(BaseModel):
+    market_beta: Decimal | None = None
+    momentum_pct: Decimal | None = None
+    realized_volatility_pct: Decimal | None = None
+
+
+class PortfolioFactorExposureResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    position_count: int
+
+    portfolio_factor_exposure: (
+        PortfolioFactorExposureSummaryResponse | None
+    ) = None
+
+    positions: list[
+        PortfolioFactorExposurePositionResponse
+    ] = []
+
+    risk_flags: list[str] = []
+
+    message: str | None = None
