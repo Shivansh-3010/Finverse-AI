@@ -18,6 +18,7 @@ from schemas.portfolio import (
     PortfolioRiskScoreResponse,
     PortfolioDrawdownResponse,
     PortfolioVaRResponse,
+    PortfolioScenarioAnalysisResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -86,6 +87,9 @@ from services.portfolio_drawdown_service import (
 )
 from services.portfolio_var_service import (
     portfolio_var_service,
+)
+from services.portfolio_scenario_analysis_service import (
+    portfolio_scenario_analysis_service,
 )
 
 router = APIRouter()
@@ -755,4 +759,23 @@ def get_portfolio_var(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/scenario-analysis",
+    response_model=PortfolioScenarioAnalysisResponse,
+)
+def get_portfolio_scenario_analysis(
+    portfolio_id: UUID,
+    scenario: str = "custom",
+    shock_pct: Decimal = Decimal("0"),
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    return portfolio_scenario_analysis_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        scenario=scenario,
+        default_shock_pct=shock_pct,
+        timeframe=timeframe,
     )

@@ -274,3 +274,22 @@ class PortfolioVaRResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+    
+class PortfolioScenarioAnalysisResponse(BaseModel):
+    portfolio_id: UUID
+    scenario: str
+    timeframe: str
+    position_count: int
+
+    total_market_value: Decimal
+    estimated_pnl_impact: Decimal
+    estimated_return_impact_pct: Decimal
+    stressed_portfolio_value: Decimal
+
+    position_impacts: list[dict]
+    worst_affected_position: str | None = None
+
+    scenario_category: str
+    risk_flags: list[str] = []
+
+    message: str | None = None
