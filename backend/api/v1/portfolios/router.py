@@ -19,6 +19,9 @@ from schemas.portfolio import (
     PortfolioDrawdownResponse,
     PortfolioVaRResponse,
     PortfolioScenarioAnalysisResponse,
+    PortfolioOptimizationResponse,
+    PortfolioPerformanceAttributionResponse,
+    PortfolioIntelligenceResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -90,6 +93,17 @@ from services.portfolio_var_service import (
 )
 from services.portfolio_scenario_analysis_service import (
     portfolio_scenario_analysis_service,
+)
+from services.portfolio_optimization_service import (
+    portfolio_optimization_service,
+)
+
+from services.portfolio_performance_attribution_service import (
+    portfolio_performance_attribution_service,
+)
+
+from services.portfolio_intelligence_service import (
+    portfolio_intelligence_service,
 )
 
 router = APIRouter()
@@ -778,4 +792,61 @@ def get_portfolio_scenario_analysis(
         scenario=scenario,
         default_shock_pct=shock_pct,
         timeframe=timeframe,
+    )
+    
+@router.get(
+    "/{portfolio_id}/optimization",
+    response_model=PortfolioOptimizationResponse,
+)
+def get_portfolio_optimization(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_optimization_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/performance-attribution",
+    response_model=PortfolioPerformanceAttributionResponse,
+)
+def get_portfolio_performance_attribution(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_performance_attribution_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/intelligence",
+    response_model=PortfolioIntelligenceResponse,
+)
+def get_portfolio_intelligence(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_intelligence_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
     )

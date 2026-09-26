@@ -293,3 +293,61 @@ class PortfolioScenarioAnalysisResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+    
+class PortfolioOptimizationPositionResponse(BaseModel):
+    symbol: str
+    current_weight_pct: Decimal
+    target_weight_pct: Decimal
+    weight_change_pct: Decimal
+    market_value: Decimal
+
+
+class PortfolioOptimizationResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    position_count: int
+
+    current_concentration_score: Decimal | None = None
+    optimized_concentration_score: Decimal | None = None
+    expected_risk_reduction_pct: Decimal | None = None
+
+    optimization_category: str
+    positions: list[PortfolioOptimizationPositionResponse]
+
+    risk_flags: list[str] = []
+    message: str | None = None
+
+
+class PortfolioPerformanceAttributionResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    position_count: int
+
+    total_cost_basis: Decimal
+    portfolio_return: Decimal | None = None
+    total_pnl_contribution: Decimal
+
+    positions: list[PortfolioAttributionPositionResponse]
+
+    message: str | None = None
+
+
+class PortfolioIntelligenceResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+
+    intelligence_category: str
+    overall_risk_score: Decimal | None = None
+    risk_category: str | None = None
+
+    portfolio_summary: dict
+    risk: dict
+    portfolio_structure: dict
+
+    risk_flags: list[str] = []
+    message: str | None = None
