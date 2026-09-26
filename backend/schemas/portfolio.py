@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -351,3 +352,95 @@ class PortfolioIntelligenceResponse(BaseModel):
 
     risk_flags: list[str] = []
     message: str | None = None
+    
+class PortfolioBenchmarkComparisonResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    portfolio_return_pct: Optional[Decimal] = None
+    benchmark_return_pct: Optional[Decimal] = None
+    excess_return_pct: Optional[Decimal] = None
+    relative_performance: str
+    message: Optional[str] = None
+
+
+class PortfolioAlphaBetaResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    alpha_pct: Optional[Decimal] = None
+    beta: Optional[Decimal] = None
+    portfolio_return_pct: Optional[Decimal] = None
+    benchmark_return_pct: Optional[Decimal] = None
+    risk_characterization: str
+    message: Optional[str] = None
+
+
+class PortfolioRiskAdjustedReturnResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    portfolio_return_pct: Optional[Decimal] = None
+    risk_free_rate_pct: Optional[Decimal] = None
+    downside_risk_pct: Optional[Decimal] = None
+    risk_adjusted_return: Optional[Decimal] = None
+    performance_category: str
+    message: Optional[str] = None
+
+
+class PortfolioRiskDecompositionResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    overall_risk_score: Optional[Decimal] = None
+    dominant_risk: Optional[str] = None
+    risk_components: dict
+    risk_contributions_pct: dict
+    risk_level: str
+    message: Optional[str] = None
+
+
+class PortfolioRebalancingPositionResponse(BaseModel):
+    symbol: str
+    current_weight_pct: Decimal
+    target_weight_pct: Decimal
+    weight_change_pct: Decimal
+    action: str
+    priority: str
+
+
+class PortfolioRebalancingResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    position_count: int
+    estimated_turnover_pct: Optional[Decimal] = None
+    rebalancing_required: bool
+    positions: list[PortfolioRebalancingPositionResponse]
+    message: Optional[str] = None
+
+
+class PortfolioRecommendationItemResponse(BaseModel):
+    action: str
+    priority: str
+    reason: str
+
+
+class PortfolioRecommendationResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+    recommendation_count: int
+    recommendations: list[
+        PortfolioRecommendationItemResponse
+    ]
+    risk_category: Optional[str] = None
+    diversification_category: Optional[str] = None
+    liquidity_category: Optional[str] = None
+    rebalancing_required: bool
+    message: Optional[str] = None

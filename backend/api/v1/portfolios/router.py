@@ -22,6 +22,12 @@ from schemas.portfolio import (
     PortfolioOptimizationResponse,
     PortfolioPerformanceAttributionResponse,
     PortfolioIntelligenceResponse,
+    PortfolioBenchmarkComparisonResponse,
+    PortfolioAlphaBetaResponse,
+    PortfolioRiskAdjustedReturnResponse,
+    PortfolioRiskDecompositionResponse,
+    PortfolioRebalancingResponse,
+    PortfolioRecommendationResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -104,6 +110,24 @@ from services.portfolio_performance_attribution_service import (
 
 from services.portfolio_intelligence_service import (
     portfolio_intelligence_service,
+)
+from services.portfolio_benchmark_comparison_service import (
+    portfolio_benchmark_comparison_service,
+)
+from services.portfolio_alpha_beta_service import (
+    portfolio_alpha_beta_service,
+)
+from services.portfolio_risk_adjusted_return_service import (
+    portfolio_risk_adjusted_return_service,
+)
+from services.portfolio_risk_decomposition_service import (
+    portfolio_risk_decomposition_service,
+)
+from services.portfolio_rebalancing_service import (
+    portfolio_rebalancing_service,
+)
+from services.portfolio_recommendation_service import (
+    portfolio_recommendation_service,
 )
 
 router = APIRouter()
@@ -844,6 +868,125 @@ def get_portfolio_intelligence(
     db: Session = Depends(get_db),
 ):
     return portfolio_intelligence_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/benchmark-comparison",
+    response_model=PortfolioBenchmarkComparisonResponse,
+)
+def benchmark_comparison(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_benchmark_comparison_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/alpha-beta",
+    response_model=PortfolioAlphaBetaResponse,
+)
+def alpha_beta(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_alpha_beta_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/risk-adjusted-return",
+    response_model=PortfolioRiskAdjustedReturnResponse,
+)
+def risk_adjusted_return(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    risk_free_rate_pct: Decimal = Decimal("0"),
+    db: Session = Depends(get_db),
+):
+    return portfolio_risk_adjusted_return_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+        risk_free_rate_pct=risk_free_rate_pct,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/risk-decomposition",
+    response_model=PortfolioRiskDecompositionResponse,
+)
+def risk_decomposition(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_risk_decomposition_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/rebalancing",
+    response_model=PortfolioRebalancingResponse,
+)
+def rebalancing(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_rebalancing_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/recommendations",
+    response_model=PortfolioRecommendationResponse,
+)
+def recommendations(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_recommendation_service.calculate(
         db=db,
         portfolio_id=portfolio_id,
         benchmark=benchmark,
