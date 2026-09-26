@@ -249,3 +249,28 @@ class PortfolioDrawdownResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+
+class PortfolioVaRResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    observation_count: int
+
+    var_95_pct: Decimal | None = None
+    var_99_pct: Decimal | None = None
+
+    var_95_value: Decimal | None = None
+    var_99_value: Decimal | None = None
+
+    expected_shortfall_95_pct: Decimal | None = None
+    expected_shortfall_99_pct: Decimal | None = None
+
+    expected_shortfall_95_value: Decimal | None = None
+    expected_shortfall_99_value: Decimal | None = None
+
+    worst_historical_return_pct: Decimal | None = None
+
+    risk_category: str
+    risk_flags: list[str] = []
+
+    message: str | None = None

@@ -17,6 +17,7 @@ from schemas.portfolio import (
     PortfolioLiquidityResponse,
     PortfolioRiskScoreResponse,
     PortfolioDrawdownResponse,
+    PortfolioVaRResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -82,6 +83,9 @@ from services.portfolio_risk_score_service import (
 )
 from services.portfolio_drawdown_service import (
     portfolio_drawdown_service,
+)
+from services.portfolio_var_service import (
+    portfolio_var_service,
 )
 
 router = APIRouter()
@@ -730,6 +734,23 @@ def get_portfolio_drawdown(
     db: Session = Depends(get_db),
 ):
     return portfolio_drawdown_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/var",
+    response_model=PortfolioVaRResponse,
+)
+def get_portfolio_var(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_var_service.calculate(
         db=db,
         portfolio_id=portfolio_id,
         timeframe=timeframe,
