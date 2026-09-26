@@ -227,3 +227,25 @@ class PortfolioRiskScoreResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+    
+class PortfolioDrawdownResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    observation_count: int
+
+    current_portfolio_value: Decimal | None = None
+    peak_portfolio_value: Decimal | None = None
+
+    current_drawdown_pct: Decimal | None = None
+    maximum_drawdown_pct: Decimal | None = None
+
+    drawdown_duration_days: int | None = None
+
+    recovery_status: str
+    recovery_time_days: int | None = None
+
+    drawdown_category: str
+    risk_flags: list[str] = []
+
+    message: str | None = None

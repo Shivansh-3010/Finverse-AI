@@ -16,6 +16,7 @@ from schemas.portfolio import (
     PortfolioStressTestResponse,
     PortfolioLiquidityResponse,
     PortfolioRiskScoreResponse,
+    PortfolioDrawdownResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -78,6 +79,9 @@ from services.portfolio_liquidity_service import (
 )
 from services.portfolio_risk_score_service import (
     portfolio_risk_score_service,
+)
+from services.portfolio_drawdown_service import (
+    portfolio_drawdown_service,
 )
 
 router = APIRouter()
@@ -711,6 +715,23 @@ def get_portfolio_risk_score(
         db=db,
         portfolio_id=portfolio_id,
         benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/drawdown",
+    response_model=PortfolioDrawdownResponse,
+)
+def get_portfolio_drawdown(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_drawdown_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
     )
