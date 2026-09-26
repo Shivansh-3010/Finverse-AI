@@ -186,3 +186,44 @@ class PortfolioStressTestResponse(BaseModel):
 
     risk_flags: list[str]
     message: str | None = None
+    
+class PortfolioLiquidityPositionResponse(BaseModel):
+    symbol: str
+    market_value: Decimal
+    portfolio_weight_pct: Decimal
+    average_daily_traded_value: Decimal
+    daily_turnover_pct: Decimal
+    estimated_days_to_liquidate: Decimal | None = None
+    liquidity_score: Decimal
+
+
+class PortfolioLiquidityResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    position_count: int
+    total_market_value: Decimal
+
+    portfolio_liquidity_score: Decimal | None = None
+    liquidity_category: str
+    estimated_daily_turnover_pct: Decimal | None = None
+
+    positions: list[
+        PortfolioLiquidityPositionResponse
+    ]
+
+    risk_flags: list[str]
+    message: str | None = None
+    
+class PortfolioRiskScoreResponse(BaseModel):
+    portfolio_id: UUID
+    benchmark: str
+    timeframe: str
+    lookback_days: int
+
+    overall_risk_score: Decimal | None = None
+    risk_category: str
+
+    risk_components: dict[str, Decimal]
+    risk_flags: list[str] = []
+
+    message: str | None = None

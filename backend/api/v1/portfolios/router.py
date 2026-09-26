@@ -14,6 +14,8 @@ from schemas.portfolio import (
     PortfolioDiversificationResponse,
     PortfolioFactorExposureResponse,
     PortfolioStressTestResponse,
+    PortfolioLiquidityResponse,
+    PortfolioRiskScoreResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -70,6 +72,12 @@ from services.portfolio_factor_exposure_service import (
 )
 from services.portfolio_stress_test_service import (
     portfolio_stress_test_service,
+)
+from services.portfolio_liquidity_service import (
+    portfolio_liquidity_service,
+)
+from services.portfolio_risk_score_service import (
+    portfolio_risk_score_service,
 )
 
 router = APIRouter()
@@ -671,4 +679,38 @@ def portfolio_stress_test(
         shock_pct=shock_pct,
         symbol=symbol,
         timeframe=timeframe,
+    )
+    
+@router.get(
+    "/{portfolio_id}/liquidity",
+    response_model=PortfolioLiquidityResponse,
+)
+def portfolio_liquidity(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    return portfolio_liquidity_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+    )
+    
+@router.get(
+    "/{portfolio_id}/risk-score",
+    response_model=PortfolioRiskScoreResponse,
+)
+def get_portfolio_risk_score(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_risk_score_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
     )
