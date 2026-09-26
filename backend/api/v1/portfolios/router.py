@@ -13,6 +13,7 @@ from schemas.portfolio import (
     PortfolioCorrelationResponse,
     PortfolioDiversificationResponse,
     PortfolioFactorExposureResponse,
+    PortfolioStressTestResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -66,6 +67,9 @@ from services.portfolio_diversification_service import (
 )
 from services.portfolio_factor_exposure_service import (
     portfolio_factor_exposure_service,
+)
+from services.portfolio_stress_test_service import (
+    portfolio_stress_test_service,
 )
 
 router = APIRouter()
@@ -645,5 +649,26 @@ def get_portfolio_factor_exposure(
         db=db,
         portfolio_id=portfolio_id,
         benchmark_symbol=benchmark,
+        timeframe=timeframe,
+    )
+    
+@router.get(
+    "/{portfolio_id}/stress-test",
+    response_model=PortfolioStressTestResponse,
+)
+def portfolio_stress_test(
+    portfolio_id: UUID,
+    scenario: str = "market_shock",
+    shock_pct: Decimal = Decimal("-10"),
+    symbol: str | None = None,
+    timeframe: str = "1d",
+    db: Session = Depends(get_db),
+):
+    return portfolio_stress_test_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        scenario=scenario,
+        shock_pct=shock_pct,
+        symbol=symbol,
         timeframe=timeframe,
     )

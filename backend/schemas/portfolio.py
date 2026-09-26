@@ -157,3 +157,32 @@ class PortfolioFactorExposureResponse(BaseModel):
     risk_flags: list[str] = []
 
     message: str | None = None
+    
+class PortfolioStressTestPositionResponse(BaseModel):
+    symbol: str
+    market_value: Decimal
+    portfolio_weight_pct: Decimal
+    applied_shock_pct: Decimal
+    estimated_pnl_impact: Decimal
+    estimated_return_impact_pct: Decimal
+
+
+class PortfolioStressTestResponse(BaseModel):
+    portfolio_id: UUID
+    scenario: str
+    shock_pct: Decimal
+    symbol: str | None = None
+    timeframe: str
+    position_count: int
+    total_market_value: Decimal
+
+    estimated_pnl_impact: Decimal | None = None
+    estimated_return_impact_pct: Decimal | None = None
+    stressed_portfolio_value: Decimal | None = None
+
+    position_impacts: list[
+        PortfolioStressTestPositionResponse
+    ]
+
+    risk_flags: list[str]
+    message: str | None = None
