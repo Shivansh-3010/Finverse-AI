@@ -11,6 +11,7 @@ from schemas.portfolio import (
     PortfolioAttributionResponse,
     PortfolioExposureResponse,
     PortfolioCorrelationResponse,
+    PortfolioDiversificationResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -58,6 +59,9 @@ from services.portfolio_exposure_service import (
 )
 from services.portfolio_correlation_service import (
     portfolio_correlation_service,
+)
+from services.portfolio_diversification_service import (
+    portfolio_diversification_service,
 )
 
 router = APIRouter()
@@ -119,7 +123,7 @@ async def get_user_portfolios(
             for portfolio in portfolios
         ],
     )
-    
+
 @router.post(
     "/{portfolio_id}/transactions",
     response_model=BaseResponse,
@@ -252,7 +256,7 @@ async def get_transactions_by_date_range(
             for transaction in transactions
         ],
     )
-    
+
 @router.get(
     "/{portfolio_id}/summary",
     response_model=BaseResponse,
@@ -275,7 +279,7 @@ async def get_portfolio_summary(
         message="Portfolio summary retrieved",
         data=result,
     )
-    
+
 @router.post(
     "/{portfolio_id}/snapshots",
     response_model=BaseResponse,
@@ -394,7 +398,7 @@ async def get_latest_portfolio_snapshot(
             "risk_score": snapshot.risk_score,
         },
     )
-    
+
 @router.get(
     "/{portfolio_id}/twr",
     response_model=BaseResponse,
@@ -415,7 +419,7 @@ async def get_portfolio_twr(
         message="Portfolio TWR calculated",
         data=result,
     )
-    
+
 @router.get(
     "/{portfolio_id}/risk",
     response_model=BaseResponse,
@@ -436,7 +440,7 @@ async def get_portfolio_risk(
         message="Portfolio risk calculated",
         data=result,
     )
-    
+
 @router.get(
     "/{portfolio_id}/performance",
     response_model=BaseResponse,
@@ -457,7 +461,7 @@ async def get_portfolio_performance(
         message="Portfolio performance calculated",
         data=result,
     )
-    
+
 @router.get(
     "/{portfolio_id}/xirr",
     response_model=BaseResponse,
@@ -478,7 +482,7 @@ async def get_portfolio_xirr(
         message="Portfolio XIRR calculated",
         data=result,
     )
-    
+
 @router.get(
     "/{portfolio_id}/beta",
     response_model=PortfolioBetaResponse,
@@ -506,7 +510,7 @@ def get_portfolio_beta(
     )
 
     return result
-    
+
 @router.get(
     "/{portfolio_id}/valuation",
 )
@@ -520,7 +524,7 @@ def get_portfolio_valuation(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
     )
-    
+
 @router.get(
     "/{portfolio_id}/risk-adjusted",
     response_model=PortfolioRiskAdjustedResponse,
@@ -539,7 +543,7 @@ def get_portfolio_risk_adjusted(
         timeframe=timeframe,
         lookback_days=lookback_days,
     )
-    
+
 @router.get(
     "/{portfolio_id}/attribution",
     response_model=PortfolioAttributionResponse,
@@ -561,7 +565,7 @@ def get_portfolio_attribution(
         timeframe=timeframe,
         lookback_days=lookback_days,
     )
-    
+
 @router.get(
     "/{portfolio_id}/exposure",
     response_model=PortfolioExposureResponse,
@@ -578,7 +582,7 @@ def get_portfolio_exposure(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
     )
-    
+
 @router.get(
     "/{portfolio_id}/correlation",
     response_model=PortfolioCorrelationResponse,
@@ -595,6 +599,28 @@ def get_portfolio_correlation(
     db: Session = Depends(get_db),
 ):
     return portfolio_correlation_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+@router.get(
+    "/{portfolio_id}/diversification",
+    response_model=PortfolioDiversificationResponse,
+)
+def get_portfolio_diversification(
+    portfolio_id: UUID,
+    timeframe: str = Query(
+        default="1d"
+    ),
+    lookback_days: int = Query(
+        default=30,
+        ge=2,
+    ),
+    db: Session = Depends(get_db),
+):
+    return portfolio_diversification_service.calculate(
         db=db,
         portfolio_id=portfolio_id,
         timeframe=timeframe,

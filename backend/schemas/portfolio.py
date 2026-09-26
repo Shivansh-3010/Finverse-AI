@@ -36,7 +36,7 @@ class PortfolioBetaResponse(BaseModel):
     portfolio_return_mean: Decimal | None = None
     benchmark_return_mean: Decimal | None = None
     message: str | None = None
-    
+
 class PortfolioRiskAdjustedResponse(BaseModel):
     portfolio_id: UUID
     benchmark: str
@@ -55,7 +55,7 @@ class PortfolioRiskAdjustedResponse(BaseModel):
     beta: Decimal | None = None
 
     message: str | None = None
-    
+
 class PortfolioAttributionPositionResponse(BaseModel):
     symbol: str
     quantity: Decimal
@@ -79,7 +79,7 @@ class PortfolioAttributionResponse(BaseModel):
     total_pnl_contribution: Decimal
     positions: list[PortfolioAttributionPositionResponse]
     message: str | None = None
-    
+
 class PortfolioExposurePositionResponse(BaseModel):
     symbol: str
     market_value: Decimal
@@ -97,7 +97,7 @@ class PortfolioExposureResponse(BaseModel):
     herfindahl_index: Decimal
     exposures: list[PortfolioExposurePositionResponse]
     message: str | None = None
-    
+
 class PortfolioCorrelationResponse(BaseModel):
     portfolio_id: UUID
     timeframe: str
@@ -105,4 +105,22 @@ class PortfolioCorrelationResponse(BaseModel):
     symbols: list[str]
     observation_count: int
     matrix: dict[str, dict[str, Decimal | None]]
+    message: str | None = None
+
+class PortfolioDiversificationResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+    position_count: int
+
+    diversification_score: Decimal | None = None
+    effective_number_of_positions: Decimal | None = None
+    concentration_score: Decimal | None = None
+
+    average_pairwise_correlation: Decimal | None = None
+    max_pairwise_correlation: Decimal | None = None
+
+    diversification_category: str
+    risk_flags: list[str] = []
+
     message: str | None = None
