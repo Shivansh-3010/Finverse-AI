@@ -444,3 +444,163 @@ class PortfolioRecommendationResponse(BaseModel):
     liquidity_category: Optional[str] = None
     rebalancing_required: bool
     message: Optional[str] = None
+    
+class PortfolioExposureAttributionResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+
+    position_count: int
+    total_market_value: Optional[Decimal] = None
+
+    positive_exposure_pct: Optional[Decimal] = None
+    negative_exposure_pct: Optional[Decimal] = None
+    net_exposure_pct: Optional[Decimal] = None
+
+    largest_exposure_symbol: Optional[str] = None
+    largest_exposure_pct: Optional[Decimal] = None
+
+    positions: list[dict] = Field(default_factory=list)
+
+    message: Optional[str] = None
+
+
+class PortfolioVolatilityForecastResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    current_volatility_pct: Optional[Decimal] = None
+    forecast_volatility_pct: Optional[Decimal] = None
+
+    volatility_change_pct: Optional[Decimal] = None
+    volatility_category: Optional[str] = None
+
+    risk_flags: list[str] = Field(default_factory=list)
+
+    message: Optional[str] = None
+
+
+class PortfolioCorrelationRegimeResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+
+    average_correlation: Optional[Decimal] = None
+
+    correlation_regime: Optional[str] = None
+    diversification_quality: Optional[str] = None
+    risk_implication: Optional[str] = None
+
+    message: Optional[str] = None
+
+
+class PortfolioTailRiskResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    tail_risk_score: Optional[Decimal] = None
+    worst_return_pct: Optional[Decimal] = None
+    expected_shortfall_pct: Optional[Decimal] = None
+
+    tail_risk_category: Optional[str] = None
+
+    risk_flags: list[str] = Field(default_factory=list)
+
+    message: Optional[str] = None
+
+
+class PortfolioRecoveryAnalysisResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    current_drawdown_pct: Optional[Decimal] = None
+    maximum_drawdown_pct: Optional[Decimal] = None
+
+    drawdown_duration_days: Optional[int] = None
+
+    estimated_recovery_return_pct: Optional[Decimal] = None
+
+    recovery_status: Optional[str] = None
+    recovery_category: Optional[str] = None
+
+    risk_flags: list[str] = Field(default_factory=list)
+
+    message: Optional[str] = None
+
+
+class PortfolioRiskAlertsResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    alert_status: str
+
+    alert_count: int
+    critical_alert_count: int
+    high_alert_count: int
+    medium_alert_count: int
+
+    alerts: list[dict] = Field(
+        default_factory=list
+    )
+
+    message: Optional[str] = None
+
+
+class PortfolioHealthScoreResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    health_score: Optional[Decimal] = None
+    health_category: Optional[str] = None
+
+    component_scores: dict = Field(
+        default_factory=dict
+    )
+
+    risk_flags: list[str] = Field(
+        default_factory=list
+    )
+
+    message: Optional[str] = None
+
+
+class PortfolioMonitoringSummaryResponse(BaseModel):
+    portfolio_id: UUID
+    timeframe: str
+    lookback_days: int
+
+    monitoring_status: str
+
+    overall_risk_score: Optional[Decimal] = None
+    health_score: Optional[Decimal] = None
+
+    current_drawdown_pct: Optional[Decimal] = None
+    liquidity_score: Optional[Decimal] = None
+
+    var_95_pct: Optional[Decimal] = None
+    var_99_pct: Optional[Decimal] = None
+
+    risk_alert_status: Optional[str] = None
+
+    risk_alert_count: int = 0
+    critical_alert_count: int = 0
+    high_alert_count: int = 0
+    medium_alert_count: int = 0
+
+    risk_category: Optional[str] = None
+    health_category: Optional[str] = None
+    drawdown_category: Optional[str] = None
+    liquidity_category: Optional[str] = None
+
+    alerts: list[dict] = Field(
+        default_factory=list
+    )
+
+    risk_flags: list[str] = Field(
+        default_factory=list
+    )
+
+    message: Optional[str] = None

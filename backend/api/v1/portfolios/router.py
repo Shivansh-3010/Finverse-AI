@@ -28,6 +28,14 @@ from schemas.portfolio import (
     PortfolioRiskDecompositionResponse,
     PortfolioRebalancingResponse,
     PortfolioRecommendationResponse,
+    PortfolioExposureAttributionResponse,
+    PortfolioVolatilityForecastResponse,
+    PortfolioCorrelationRegimeResponse,
+    PortfolioTailRiskResponse,
+    PortfolioRecoveryAnalysisResponse,
+    PortfolioRiskAlertsResponse,
+    PortfolioHealthScoreResponse,
+    PortfolioMonitoringSummaryResponse,
 )
 from services.portfolio_beta_service import portfolio_beta_service
 from services.portfolio_service import (
@@ -128,6 +136,30 @@ from services.portfolio_rebalancing_service import (
 )
 from services.portfolio_recommendation_service import (
     portfolio_recommendation_service,
+)
+from services.portfolio_exposure_attribution_service import (
+    portfolio_exposure_attribution_service,
+)
+from services.portfolio_volatility_forecast_service import (
+    portfolio_volatility_forecast_service,
+)
+from services.portfolio_correlation_regime_service import (
+    portfolio_correlation_regime_service,
+)
+from services.portfolio_tail_risk_service import (
+    portfolio_tail_risk_service,
+)
+from services.portfolio_recovery_analysis_service import (
+    portfolio_recovery_analysis_service,
+)
+from services.portfolio_risk_alerts_service import (
+    portfolio_risk_alerts_service,
+)
+from services.portfolio_health_score_service import (
+    portfolio_health_score_service,
+)
+from services.portfolio_monitoring_summary_service import (
+    portfolio_monitoring_summary_service,
 )
 
 router = APIRouter()
@@ -990,6 +1022,147 @@ def recommendations(
         db=db,
         portfolio_id=portfolio_id,
         benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+    
+@router.get(
+    "/{portfolio_id}/exposure-attribution",
+    response_model=PortfolioExposureAttributionResponse,
+)
+def get_portfolio_exposure_attribution(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_exposure_attribution_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/volatility-forecast",
+    response_model=PortfolioVolatilityForecastResponse,
+)
+def get_portfolio_volatility_forecast(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_volatility_forecast_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/correlation-regime",
+    response_model=PortfolioCorrelationRegimeResponse,
+)
+def get_portfolio_correlation_regime(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_correlation_regime_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/tail-risk",
+    response_model=PortfolioTailRiskResponse,
+)
+def get_portfolio_tail_risk(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_tail_risk_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/recovery-analysis",
+    response_model=PortfolioRecoveryAnalysisResponse,
+)
+def get_portfolio_recovery_analysis(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_recovery_analysis_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/risk-alerts",
+    response_model=PortfolioRiskAlertsResponse,
+)
+def get_portfolio_risk_alerts(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_risk_alerts_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/health-score",
+    response_model=PortfolioHealthScoreResponse,
+)
+def get_portfolio_health_score(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_health_score_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+
+@router.get(
+    "/{portfolio_id}/monitoring-summary",
+    response_model=PortfolioMonitoringSummaryResponse,
+)
+def get_portfolio_monitoring_summary(
+    portfolio_id: UUID,
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    return portfolio_monitoring_summary_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
     )
