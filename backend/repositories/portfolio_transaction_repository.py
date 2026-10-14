@@ -24,7 +24,8 @@ class PortfolioTransactionRepository(
                 PortfolioTransaction.portfolio_id == portfolio_id
             )
             .order_by(
-                PortfolioTransaction.transaction_date.asc()
+                PortfolioTransaction.transaction_date.asc(),
+                PortfolioTransaction.id.asc(),
             )
             .all()
         )
@@ -42,7 +43,8 @@ class PortfolioTransactionRepository(
                 PortfolioTransaction.symbol == symbol,
             )
             .order_by(
-                PortfolioTransaction.transaction_date.asc()
+                PortfolioTransaction.transaction_date.asc(),
+                PortfolioTransaction.id.asc(),
             )
             .all()
         )
@@ -62,7 +64,8 @@ class PortfolioTransactionRepository(
                 PortfolioTransaction.transaction_date <= end_date,
             )
             .order_by(
-                PortfolioTransaction.transaction_date.asc()
+                PortfolioTransaction.transaction_date.asc(),
+                PortfolioTransaction.id.asc(),
             )
             .all()
         )
