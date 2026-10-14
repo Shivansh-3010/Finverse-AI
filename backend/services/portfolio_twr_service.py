@@ -63,102 +63,60 @@ class PortfolioTWRService:
         periods = []
         linked_return = Decimal("1")
 
-        for index in range(1, len(snapshots)):
+        transaction_index = 0
 
+        for index in range(1, len(snapshots)):
             previous = snapshots[index - 1]
             current = snapshots[index]
 
-            beginning_value = Decimal(
-                previous.portfolio_value
-            )
-
-            ending_value = Decimal(
-                current.portfolio_value
-            )
-
+            beginning_value = Decimal(previous.portfolio_value)
+            ending_value = Decimal(current.portfolio_value)
             cash_flow = Decimal("0")
 
-            for transaction in transactions:
+            # Transactions are returned in ascending transaction_date order.
+            # Advance past transactions that belong before this sub-period.
+            while (
+                transaction_index < len(transactions)
+                and transactions[transaction_index].transaction_date
+                <= previous.snapshot_time
+            ):
+                transaction_index += 1
 
-                transaction_time = (
-                    transaction.transaction_date
-                )
+            # Process only transactions inside the current sub-period.
+            while (
+                transaction_index < len(transactions)
+                and transactions[transaction_index].transaction_date
+                <= current.snapshot_time
+            ):
+                transaction = transactions[transaction_index]
 
-                if not (
-                    transaction_time > previous.snapshot_time
-                    and transaction_time <= current.snapshot_time
-                ):
-                    continue
+                if transaction.transaction_type == TransactionType.DEPOSIT.value:
+                    cash_flow += Decimal(transaction.amount)
 
-                if transaction.transaction_type == (
-                    TransactionType.DEPOSIT.value
-                ):
-                    cash_flow += Decimal(
-                        transaction.amount
-                    )
+                elif transaction.transaction_type == TransactionType.WITHDRAWAL.value:
+                    cash_flow -= Decimal(transaction.amount)
 
-                elif transaction.transaction_type == (
-                    TransactionType.WITHDRAWAL.value
-                ):
-                    cash_flow -= Decimal(
-                        transaction.amount
-                    )
+                transaction_index += 1
 
-            # --------------------------------------------------
-            # TWR PERIOD RETURN
-            # --------------------------------------------------
-            #
-            # Cash flows are external to the investment process.
-            # Therefore they must not be interpreted as investment
-            # gains or losses.
-            #
-            # For a positive external cash flow:
-            #
-            #   Return = Ending Value
-            #            ----------------
-            #            Beginning Value + Cash Flow
-            #
-            # For a withdrawal:
-            #
-            #   Return = Ending Value
-            #            ----------------
-            #            Beginning Value + Cash Flow
-            #
-            # where withdrawal cash_flow is negative.
-            #
-            # If there is no beginning capital, the period return
-            # cannot be meaningfully calculated.
-            # --------------------------------------------------
-
-            adjusted_beginning_value = (
-                beginning_value + cash_flow
-            )
+            adjusted_beginning_value = beginning_value + cash_flow
 
             if adjusted_beginning_value <= Decimal("0"):
                 period_return = Decimal("0")
             else:
                 period_return = (
-                    ending_value
-                    / adjusted_beginning_value
+                    ending_value / adjusted_beginning_value
                 ) - Decimal("1")
 
-            linked_return *= (
-                Decimal("1") + period_return
-            )
+            linked_return *= Decimal("1") + period_return
 
-            periods.append(
-                {
-                    "start": previous.snapshot_time,
-                    "end": current.snapshot_time,
-                    "beginning_value": beginning_value,
-                    "cash_flow": cash_flow,
-                    "ending_value": ending_value,
-                    "return": _percent(
-                        period_return * Decimal("100")
-                    ),
-                }
-            )
-
+            periods.append({
+                "start": previous.snapshot_time,
+                "end": current.snapshot_time,
+                "beginning_value": beginning_value,
+                "cash_flow": cash_flow,
+                "ending_value": ending_value,
+                "return": _percent(period_return * Decimal("100")),
+            })
         twr = linked_return - Decimal("1")
 
         return {

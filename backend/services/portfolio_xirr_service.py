@@ -13,6 +13,13 @@ from services.portfolio_valuation_service import (
 )
 
 
+def _rate(value: Decimal) -> Decimal:
+    return value.quantize(
+        Decimal("0.0001"),
+        rounding=ROUND_HALF_UP,
+    )
+
+
 def _percent(value: Decimal) -> Decimal:
     return value.quantize(
         Decimal("0.01"),
@@ -233,6 +240,23 @@ class PortfolioXIRRService:
             )
         )
 
+        if valuation.get("valuation_complete") is False:
+            unpriced_positions = valuation.get(
+                "unpriced_positions",
+                [],
+            )
+
+            symbols = ", ".join(unpriced_positions)
+
+            raise ValueError(
+                "Portfolio valuation is incomplete"
+                + (
+                    f"; missing market prices for: {symbols}"
+                    if symbols
+                    else ""
+                )
+            )
+
         terminal_value = Decimal(
             valuation["total_portfolio_value"]
         )
@@ -271,7 +295,7 @@ class PortfolioXIRRService:
                 terminal_value
             ),
 
-            "xirr": _percent(
+            "xirr": _rate(
                 xirr
             ),
 

@@ -568,12 +568,16 @@ async def get_portfolio_xirr(
     portfolio_id: UUID,
     db: Session = Depends(get_db),
 ):
-    result = (
-        portfolio_xirr_service.calculate(
+    try:
+        result = portfolio_xirr_service.calculate(
             db=db,
             portfolio_id=portfolio_id,
         )
-    )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
 
     return BaseResponse(
         success=True,

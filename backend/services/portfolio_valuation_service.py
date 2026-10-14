@@ -54,10 +54,11 @@ class PortfolioValuationService:
         ohlcv_repository = OHLCVRepository(db)
 
         positions = []
+        unpriced_positions = []
 
         total_cost_basis = Decimal("0")
         total_market_value = Decimal("0")
-
+        
         for holding in holdings:
 
             symbol = holding["symbol"]
@@ -73,6 +74,7 @@ class PortfolioValuationService:
             )
 
             if candle is None:
+                unpriced_positions.append(symbol)
                 continue
 
             current_price = _money(
@@ -176,6 +178,8 @@ class PortfolioValuationService:
             "unrealized_pnl": portfolio_unrealized_pnl,
             "unrealized_return_pct":
                 portfolio_return_pct,
+            "valuation_complete": len(unpriced_positions) == 0,
+            "unpriced_positions": unpriced_positions,
         }
 
 
