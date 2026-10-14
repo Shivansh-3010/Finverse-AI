@@ -30,6 +30,7 @@ class PortfolioTransactionService:
         portfolio = (
             db.query(Portfolio)
             .filter(Portfolio.id == data.portfolio_id)
+            .with_for_update()
             .first()
         )
 
@@ -47,6 +48,19 @@ class PortfolioTransactionService:
             amount=data.amount,
             transaction_date=data.transaction_date,
             reference=data.reference,
+        )
+
+        existing_transactions = (
+            portfolio_transaction_repository.get_by_symbol(
+                db,
+                data.portfolio_id,
+                transaction.symbol,
+            )
+        )
+
+        self._validate_sell_against_ledger(
+            existing_transactions,
+            transaction,
         )
 
         return portfolio_transaction_repository.create(
@@ -96,6 +110,58 @@ class PortfolioTransactionService:
                 end_date,
             )
         )
+
+
+    @staticmethod
+    def _validate_sell_against_ledger(
+        existing_transactions: list[PortfolioTransaction],
+        proposed_transaction: PortfolioTransaction,
+    ) -> None:
+        transactions = [
+            *existing_transactions,
+            proposed_transaction,
+        ]
+
+        transactions.sort(
+            key=lambda item: (
+                item.transaction_date,
+                item.id is not None,
+                str(item.id) if item.id is not None else "",
+            )
+        )
+
+        quantity_by_symbol: dict[str, Decimal] = {}
+
+        for item in transactions:
+            symbol = item.symbol.upper().strip()
+            quantity = item.quantity or Decimal("0")
+            transaction_type = item.transaction_type.upper().strip()
+
+            available = quantity_by_symbol.get(
+                symbol,
+                Decimal("0"),
+            )
+
+            if transaction_type == TransactionType.BUY.value:
+                quantity_by_symbol[symbol] = available + quantity
+
+            elif transaction_type == TransactionType.SELL.value:
+                if quantity > available:
+                    raise ValueError(
+                        f"SELL quantity for {symbol} exceeds "
+                        "current holding"
+                    )
+
+                quantity_by_symbol[symbol] = available - quantity
+
+            elif transaction_type == TransactionType.SPLIT.value:
+                if quantity > Decimal("0"):
+                    quantity_by_symbol[symbol] = available * quantity
+
+            elif transaction_type == TransactionType.BONUS.value:
+                if quantity > Decimal("0"):
+                    quantity_by_symbol[symbol] = available + quantity
+
 
     @staticmethod
     def _validate_transaction(
@@ -155,7 +221,7 @@ class PortfolioTransactionService:
                 raise ValueError(
                     "Dividend amount must be greater than zero"
                 )
-        
+
         if transaction_type in {
             TransactionType.DEPOSIT.value,
             TransactionType.WITHDRAWAL.value,
