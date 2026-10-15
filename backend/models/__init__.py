@@ -10,3 +10,4 @@ from models.portfolio import Portfolio
 from models.portfolio_snapshot import PortfolioSnapshot
 from models.portfolio_transaction import PortfolioTransaction
 from models.holding import Holding
+from .portfolio_goal import PortfolioGoal

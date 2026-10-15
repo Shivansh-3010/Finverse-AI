@@ -161,6 +161,15 @@ from services.portfolio_health_score_service import (
 from services.portfolio_monitoring_summary_service import (
     portfolio_monitoring_summary_service,
 )
+from schemas.portfolio_goal import (
+    PortfolioGoalCreate,
+    PortfolioGoalUpdate,
+    PortfolioGoalResponse,
+)
+from services.portfolio_goal_crud_service import (
+    portfolio_goal_crud_service,
+)
+from services.portfolio_goal_service import portfolio_goal_service
 
 router = APIRouter()
 
@@ -1169,4 +1178,162 @@ def get_portfolio_monitoring_summary(
         portfolio_id=portfolio_id,
         timeframe=timeframe,
         lookback_days=lookback_days,
+    )
+    
+
+@router.post("/{portfolio_id}/goals", response_model=BaseResponse)
+def create_portfolio_goal(
+    portfolio_id: UUID,
+    payload: PortfolioGoalCreate,
+    db: Session = Depends(get_db),
+):
+    try:
+        goal = portfolio_goal_crud_service.create(
+            db, portfolio_id, payload.model_dump()
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goal created",
+        data=PortfolioGoalResponse.model_validate(goal).model_dump(mode="json"),
+    )
+
+
+@router.get("/{portfolio_id}/goals", response_model=BaseResponse)
+def list_portfolio_goals(
+    portfolio_id: UUID,
+    db: Session = Depends(get_db),
+):
+    try:
+        goals = portfolio_goal_crud_service.list_for_portfolio(
+            db, portfolio_id
+        )
+    except LookupError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goals retrieved",
+        data=[
+            PortfolioGoalResponse.model_validate(goal).model_dump(mode="json")
+            for goal in goals
+        ],
+    )
+
+
+@router.get(
+    "/{portfolio_id}/goals/{goal_id}",
+    response_model=BaseResponse,
+)
+def get_portfolio_goal(
+    portfolio_id: UUID,
+    goal_id: UUID,
+    db: Session = Depends(get_db),
+):
+    goal = portfolio_goal_crud_service.get(db, portfolio_id, goal_id)
+    if goal is None:
+        raise HTTPException(status_code=404, detail="Portfolio goal not found")
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goal retrieved",
+        data=PortfolioGoalResponse.model_validate(goal).model_dump(mode="json"),
+    )
+
+
+@router.patch(
+    "/{portfolio_id}/goals/{goal_id}",
+    response_model=BaseResponse,
+)
+def update_portfolio_goal(
+    portfolio_id: UUID,
+    goal_id: UUID,
+    payload: PortfolioGoalUpdate,
+    db: Session = Depends(get_db),
+):
+    changes = payload.model_dump(exclude_unset=True)
+
+    # Explicit nulls must not overwrite required database fields.
+    if any(value is None for value in changes.values()):
+        raise HTTPException(
+            status_code=422,
+            detail="Updated fields cannot be null",
+        )
+
+    try:
+        goal = portfolio_goal_crud_service.update(
+            db, portfolio_id, goal_id, changes
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    if goal is None:
+        raise HTTPException(status_code=404, detail="Portfolio goal not found")
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goal updated",
+        data=PortfolioGoalResponse.model_validate(goal).model_dump(mode="json"),
+    )
+
+
+@router.delete(
+    "/{portfolio_id}/goals/{goal_id}",
+    response_model=BaseResponse,
+)
+def delete_portfolio_goal(
+    portfolio_id: UUID,
+    goal_id: UUID,
+    db: Session = Depends(get_db),
+):
+    deleted = portfolio_goal_crud_service.delete(
+        db, portfolio_id, goal_id
+    )
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Portfolio goal not found")
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goal deleted",
+        data={"goal_id": str(goal_id)},
+    )
+
+
+@router.get(
+    "/{portfolio_id}/goals/{goal_id}/projection",
+    response_model=BaseResponse,
+)
+def project_portfolio_goal(
+    portfolio_id: UUID,
+    goal_id: UUID,
+    db: Session = Depends(get_db),
+):
+    goal = portfolio_goal_crud_service.get(db, portfolio_id, goal_id)
+    if goal is None:
+        raise HTTPException(status_code=404, detail="Portfolio goal not found")
+
+    try:
+        months = portfolio_goal_service.months_until(goal.target_date)
+        projection = portfolio_goal_service.project(
+            current_amount=goal.current_amount,
+            target_amount=goal.target_amount,
+            monthly_contribution=goal.monthly_contribution,
+            annual_return_pct=goal.expected_annual_return_pct,
+            months=months,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio goal projection calculated",
+        data={
+            "goal_id": str(goal.id),
+            "name": goal.name,
+            **projection,
+        },
     )

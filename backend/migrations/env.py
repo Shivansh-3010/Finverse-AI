@@ -45,6 +45,7 @@ from models.news_article import (
     NewsArticle
 )
 from models.portfolio_snapshot import PortfolioSnapshot
+from models.portfolio_goal import PortfolioGoal
 
 target_metadata = Base.metadata
 
