@@ -95,8 +95,14 @@ class PortfolioOptimizationService:
             / Decimal(str(count))
         )
 
-        # Cap individual positions at 40%.
-        max_weight = Decimal("40")
+        # Enforce a 40% cap where mathematically feasible.
+        # One or two positions cannot satisfy a 40% cap while
+        # allocating 100% of the portfolio, so use the equal
+        # weight as the minimum feasible cap in those cases.
+        max_weight = max(
+            Decimal("40"),
+            equal_weight,
+        )
 
         target_weights = {}
 
@@ -321,7 +327,10 @@ class PortfolioOptimizationService:
             "optimization_category": optimization_category,
             "positions": positions_result,
             "risk_flags": risk_flags,
-            "message": None,
+            "message": (
+                "Risk reduction percentage represents estimated "
+                "concentration reduction, not forecast total portfolio risk."
+            ),
         }
 
 
