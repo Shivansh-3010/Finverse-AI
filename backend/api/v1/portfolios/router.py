@@ -170,6 +170,9 @@ from services.portfolio_goal_crud_service import (
     portfolio_goal_crud_service,
 )
 from services.portfolio_goal_service import portfolio_goal_service
+from feature_store.portfolio.portfolio_features import (
+    generate_portfolio_features,
+)
 
 router = APIRouter()
 
@@ -919,7 +922,34 @@ def get_portfolio_intelligence(
         timeframe=timeframe,
         lookback_days=lookback_days,
     )
-    
+
+@router.get(
+    "/{portfolio_id}/feature-store",
+    response_model=BaseResponse,
+)
+def get_portfolio_feature_store(
+    portfolio_id: UUID,
+    benchmark: str = "NIFTY50",
+    timeframe: str = "1d",
+    lookback_days: int = 30,
+    db: Session = Depends(get_db),
+):
+    intelligence = portfolio_intelligence_service.calculate(
+        db=db,
+        portfolio_id=portfolio_id,
+        benchmark=benchmark,
+        timeframe=timeframe,
+        lookback_days=lookback_days,
+    )
+
+    features = generate_portfolio_features(intelligence)
+
+    return BaseResponse(
+        success=True,
+        message="Portfolio feature store generated",
+        data=features,
+    )
+
 @router.get(
     "/{portfolio_id}/benchmark-comparison",
     response_model=PortfolioBenchmarkComparisonResponse,
